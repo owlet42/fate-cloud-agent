@@ -1,5 +1,9 @@
 # fate-cloud-agent
 
+start service
+```bash
+$ go run kubefate.go
+```
 
 deploy
 ```bash
