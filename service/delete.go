@@ -12,7 +12,7 @@ func Delete(c *gin.Context) {
 		log.Println(fate.Name)
 		log.Println(fate.Namespace)
 		log.Println(fate.Chart)
-		err := pkg.Delete([]string{fate.Name, fate.Namespace})
+		res, err := pkg.Delete([]string{fate.Name, fate.Namespace})
 		if err != nil {
 			c.JSON(500, gin.H{
 				"err": err.Error(),
@@ -21,6 +21,7 @@ func Delete(c *gin.Context) {
 		}
 		c.JSON(200, gin.H{
 			"message": "delete success",
+			"date":    res.Info,
 		})
 	} else {
 		c.JSON(400, gin.H{

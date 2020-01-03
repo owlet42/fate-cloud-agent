@@ -17,5 +17,3 @@ delete
 ```bash
 http://127.0.0.1:8080/delete?name=fate-10000&namespace=fate-10000
 ```
-
-***There is a bug in the namespace variable assignment***
