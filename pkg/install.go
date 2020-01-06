@@ -27,8 +27,7 @@ func Install(args []string) ( *releaseElement, error ){
 	valueOpts := &values.Options{}
 	namespace := args[1]
 	if err := cfg.Init(settings.RESTClientGetter(), Namespace(namespace), os.Getenv("HELM_DRIVER"), debug); err != nil {
-		debug("%+v", err)
-		os.Exit(1)
+		return nil, err
 	}
 
 	rel, err := runInstall(args, client, valueOpts, os.Stdout)

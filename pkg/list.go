@@ -17,8 +17,7 @@ func List(namespaces string) (*releaseListWriter, error) {
 	client := action.NewList(cfg)
 	settings.EnvVars()
 	if err := cfg.Init(settings.RESTClientGetter(), Namespace(namespaces), os.Getenv("HELM_DRIVER"), debug); err != nil {
-		debug("%+v", err)
-		os.Exit(1)
+		return nil, err
 	}
 
 	client.SetStateMask()

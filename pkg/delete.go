@@ -14,7 +14,6 @@ func Delete(args []string) (*release.UninstallReleaseResponse, error) {
 	out := os.Stdout
 	namespace := args[1]
 	if err := cfg.Init(settings.RESTClientGetter(), Namespace(namespace), os.Getenv("HELM_DRIVER"), debug); err != nil {
-		debug("%+v", err)
 		return nil, err
 	}
 	name := args[0]
