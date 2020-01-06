@@ -4,7 +4,7 @@ WORKDIR /workdir
 
 COPY . ./
 
-RUN go build -o kubefate kubefate.go
+RUN go build -a -ldflags '-s' -installsuffix cgo -o kubefate kubefate.go
 
 FROM scratch
 
