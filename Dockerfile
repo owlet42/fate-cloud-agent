@@ -6,7 +6,7 @@ COPY . ./
 
 RUN go build -o kubefate kubefate.go
 
-FROM centos
+FROM scratch
 
 COPY --from=0 /workdir/kubefate /workdir/
 
