@@ -2,6 +2,8 @@ package pkg
 
 import (
 	"helm.sh/helm/v3/pkg/cli"
+	"k8s.io/client-go/util/homedir"
+	"log"
 	"os"
 )
 
@@ -19,5 +21,7 @@ func initKubeConfig() {
 		return !fi.IsDir()
 	}(KubeConfig) {
 		settings.KubeConfig = KubeConfig
+		log.Println("KubeConfig", KubeConfig)
 	}
+	log.Println("KubeConfig", homedir.HomeDir(), "\\.kube", "\\config")
 }

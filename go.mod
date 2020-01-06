@@ -16,6 +16,7 @@ require (
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.2.0
 	helm.sh/helm/v3 v3.0.2
+	k8s.io/client-go v0.0.0-20191016111102-bec269661e48
 	k8s.io/klog v1.0.0
 )
 
