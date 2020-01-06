@@ -15,7 +15,7 @@ func List(c *gin.Context) {
 		res, err := pkg.List(fate.Namespace)
 		if err != nil {
 			c.JSON(500, gin.H{
-				"err": err,
+				"err": err.Error(),
 			})
 			return
 		}
