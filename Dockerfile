@@ -6,7 +6,7 @@ COPY . ./
 
 RUN go build -a -ldflags '-s' -installsuffix cgo -o kubefate kubefate.go
 
-FROM scratch
+FROM centos
 
 COPY --from=0 /workdir/kubefate /workdir/
 
