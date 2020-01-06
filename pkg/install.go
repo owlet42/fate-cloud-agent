@@ -22,6 +22,7 @@ import (
 
 func Install(args []string) ( *releaseElement, error ){
 	//initKubeLogs()
+	initKubeConfig()
 	cfg := new(action.Configuration)
 	client := action.NewInstall(cfg)
 	valueOpts := &values.Options{}

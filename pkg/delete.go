@@ -8,7 +8,7 @@ import (
 )
 
 func Delete(args []string) (*release.UninstallReleaseResponse, error) {
-
+	initKubeConfig()
 	cfg := new(action.Configuration)
 	client := action.NewUninstall(cfg)
 	out := os.Stdout

@@ -13,9 +13,12 @@ import (
 )
 
 func List(namespaces string) (*releaseListWriter, error) {
+
+	initKubeConfig()
 	cfg := new(action.Configuration)
 	client := action.NewList(cfg)
-	settings.EnvVars()
+	fmt.Printf("%+v",settings.EnvVars())
+
 	if err := cfg.Init(settings.RESTClientGetter(), Namespace(namespaces), os.Getenv("HELM_DRIVER"), debug); err != nil {
 		return nil, err
 	}

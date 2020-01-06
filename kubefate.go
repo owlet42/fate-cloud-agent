@@ -4,7 +4,7 @@ import (
 	"fate-cloud-agent/service"
 )
 
-func main(){
+func main() {
 	//cli.CommandLine()
 	service.Run()
 }
