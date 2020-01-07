@@ -12,7 +12,6 @@ import (
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/release"
 	"io"
-	"log"
 	"os"
 	"strconv"
 )
@@ -31,14 +30,12 @@ func Install(namespace, name, chartPath string) (*releaseElement, error) {
 	client := action.NewInstall(cfg)
 	valueOpts := &values.Options{}
 
-	fmt.Println("HELM_NAMESPACE: ", os.Getenv("HELM_NAMESPACE"))
 	if err := cfg.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), debug); err != nil {
 		return nil, err
 	}
 
 	rel, err := runInstall(name, chartPath, client, valueOpts, os.Stdout, settings)
 	if err != nil {
-		log.Println(err)
 		return nil, err
 	}
 
@@ -78,7 +75,7 @@ func runInstall(name, chartPath string, client *action.Install, valueOpts *value
 	}
 
 	debug("CHART PATH: %s\n", cp)
-	fmt.Printf("CHART PATH: %s\n", cp)
+
 	p := getter.All(settings)
 	vals, err := valueOpts.MergeValues(p)
 	if err != nil {
@@ -126,7 +123,7 @@ func runInstall(name, chartPath string, client *action.Install, valueOpts *value
 	}
 
 	client.Namespace = settings.Namespace()
-	fmt.Println("Namespace", client.Namespace)
+
 	return client.Run(chartRequested, vals)
 }
 

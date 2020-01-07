@@ -1,14 +1,10 @@
 package service
 
 import (
-	"bytes"
 	"fmt"
-	"github.com/gosuri/uitable"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/cli/output"
 	"helm.sh/helm/v3/pkg/release"
-	"io"
 	"os"
 	"strconv"
 )
@@ -25,7 +21,6 @@ func List(namespace string) (*releaseListWriter, error) {
 
 	cfg := new(action.Configuration)
 	client := action.NewList(cfg)
-	fmt.Printf("%+v", settings.EnvVars())
 
 	if err := cfg.Init(settings.RESTClientGetter(), namespace, os.Getenv("HELM_DRIVER"), debug); err != nil {
 		return nil, err
@@ -39,8 +34,7 @@ func List(namespace string) (*releaseListWriter, error) {
 	}
 
 	res := newReleaseListWriter(results)
-	s, _ := res.WriteToJSON()
-	fmt.Println(s)
+
 	return res, nil
 }
 
@@ -77,20 +71,4 @@ func newReleaseListWriter(releases []*release.Release) *releaseListWriter {
 		elements = append(elements, element)
 	}
 	return &releaseListWriter{elements}
-}
-
-func (r *releaseListWriter) WriteTable(out io.Writer) error {
-	table := uitable.New()
-	table.AddRow("NAME", "NAMESPACE", "REVISION", "UPDATED", "STATUS", "CHART", "APP VERSION")
-	for _, r := range r.Releases {
-		table.AddRow(r.Name, r.Namespace, r.Revision, r.Updated, r.Status, r.Chart, r.AppVersion)
-	}
-	return output.EncodeTable(out, table)
-}
-
-func (r *releaseListWriter) WriteToJSON() (s string, err error) {
-	buf := new(bytes.Buffer)
-	err = output.EncodeJSON(buf, r.Releases)
-	s = buf.String()
-	return s, err
 }

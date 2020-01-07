@@ -15,7 +15,7 @@ func Delete(namespace ,name string) (*release.UninstallReleaseResponse, error) {
 		panic(err)
 	}
 	settings := cli.New()
-	ENV_CS.Lock()
+	ENV_CS.Unlock()
 
 	cfg := new(action.Configuration)
 	client := action.NewUninstall(cfg)
