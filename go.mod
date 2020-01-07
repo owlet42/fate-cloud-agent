@@ -9,6 +9,7 @@ require (
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/gosuri/uitable v0.0.1
 	github.com/pkg/errors v0.8.1
+	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5
 	github.com/tidwall/pretty v1.0.0 // indirect
 	github.com/urfave/cli/v2 v2.1.1
@@ -16,6 +17,7 @@ require (
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.2.0
 	helm.sh/helm/v3 v3.0.2
+	k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8
 	k8s.io/client-go v0.0.0-20191016111102-bec269661e48
 	k8s.io/klog v1.0.0
 )

@@ -1,18 +1,19 @@
-package service
+package api
 
 import (
-	"fate-cloud-agent/pkg"
+	"fate-cloud-agent/pkg/service"
 	"github.com/gin-gonic/gin"
 	"log"
 )
 
-func Delete(c *gin.Context) {
+func List(c *gin.Context) {
+	//TODO Refactoring API
 	var fate fate
 	if c.ShouldBind(&fate) == nil {
 		log.Println(fate.Name)
 		log.Println(fate.Namespace)
-		log.Println(fate.Chart)
-		res, err := pkg.Delete([]string{fate.Name, fate.Namespace})
+		log.Println(fate.ChartPath)
+		res, err := service.List(fate.Namespace)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"err": err.Error(),
@@ -20,12 +21,12 @@ func Delete(c *gin.Context) {
 			return
 		}
 		c.JSON(200, gin.H{
-			"message": "delete success",
-			"date":    res.Info,
+			"message": "List",
+			"data":    res.Releases,
 		})
 	} else {
 		c.JSON(400, gin.H{
-			"message": "Name Namespace Chart error",
+			"message": "Name Namespace ChartPath error",
 		})
 	}
 }

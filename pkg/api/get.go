@@ -1,18 +1,18 @@
-package service
+package api
 
 import (
-	"fate-cloud-agent/pkg"
+	"fate-cloud-agent/pkg/service"
 	"github.com/gin-gonic/gin"
 	"log"
 )
 
-func List(c *gin.Context) {
+func Get(c *gin.Context) {
 	var fate fate
 	if c.ShouldBind(&fate) == nil {
 		log.Println(fate.Name)
 		log.Println(fate.Namespace)
-		log.Println(fate.Chart)
-		res, err := pkg.List(fate.Namespace)
+		log.Println(fate.ChartPath)
+		res, err := service.Get(fate.Namespace, fate.Name)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"err": err.Error(),
@@ -21,11 +21,11 @@ func List(c *gin.Context) {
 		}
 		c.JSON(200, gin.H{
 			"message": "List",
-			"date":    res.Releases,
+			"data":    res,
 		})
 	} else {
 		c.JSON(400, gin.H{
-			"message": "Name Namespace Chart error",
+			"message": "Name Namespace ChartPath error",
 		})
 	}
 }

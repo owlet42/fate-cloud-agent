@@ -1,7 +1,7 @@
-package service
+package api
 
 import (
-	"fate-cloud-agent/pkg"
+	"fate-cloud-agent/pkg/service"
 	"github.com/gin-gonic/gin"
 	"log"
 )
@@ -9,7 +9,7 @@ import (
 type fate struct {
 	Name      string `form:"name"`
 	Namespace string `form:"namespace"`
-	Chart     string `form:"chart"`
+	ChartPath string `form:"chart"`
 }
 
 func Deploy(c *gin.Context) {
@@ -20,23 +20,30 @@ func Deploy(c *gin.Context) {
 	if c.ShouldBind(&fate) == nil {
 		log.Println(fate.Name)
 		log.Println(fate.Namespace)
-		log.Println(fate.Chart)
-		res, err := pkg.Install([]string{fate.Name, fate.Namespace, fate.Chart})
+		log.Println(fate.ChartPath)
+		res, err := service.Install(fate.Namespace, fate.Name, fate.ChartPath)
 		if err != nil {
 			c.JSON(500, gin.H{
 				"err": err.Error(),
 			})
 			return
 		}
+		data := &DeployM{
+			Name:       res.Name,
+			Namespace:  res.Namespace,
+			Revision:   res.Revision,
+			Updated:    res.Updated,
+			Status:     res.Status,
+			Chart:      res.Chart,
+			AppVersion: res.AppVersion,
+		}
 		c.JSON(200, gin.H{
 			"message": "fate-10000 Deploy success!",
-			"data":    res,
+			"data":    data,
 		})
-	}else{
+	} else {
 		c.JSON(400, gin.H{
-			"message": "Name Namespace Chart error",
+			"message": "Name Namespace ChartPath error",
 		})
 	}
-
-
 }

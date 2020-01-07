@@ -23,17 +23,17 @@ func Db() {
 	}
 
 	// 使用
-	db := client.Database("KubeFate")   // database
-	stu := db.Collection("fate") // collection
+	db := client.Database("KubeFate") // database
+	stu := db.Collection("fate")      // collection
 
 	// 插入数据
-	xm1 := Fate{Name: "fate-10000", NameSpaces: "fate-10000", Version: "1.2.0",}
+	xm1 := Fate{Name: "fate-10000", NameSpaces: "fate-10000", Version: "1.2.0"}
 	_, err = stu.InsertOne(ctx, xm1)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	xm2 := Fate{Name: "fate-9999", NameSpaces: "fate-9999", Version: "1.2.0",}
+	xm2 := Fate{Name: "fate-9999", NameSpaces: "fate-9999", Version: "1.2.0"}
 	_, err = stu.InsertOne(ctx, xm2)
 	if err != nil {
 		log.Println(err)
@@ -74,7 +74,7 @@ func Db() {
 }
 
 type Fate struct {
-	Name string `json:"name"`
-	NameSpaces  string    `json:"namespaces"`
-	Version  string `json:"version"`
+	Name       string `json:"name"`
+	NameSpaces string `json:"namespaces"`
+	Version    string `json:"version"`
 }

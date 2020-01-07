@@ -1,10 +1,11 @@
-package pkg
+package service
 
 import (
 	"bytes"
 	"fmt"
 	"github.com/gosuri/uitable"
 	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/cli/output"
 	"helm.sh/helm/v3/pkg/release"
 	"io"
@@ -12,14 +13,21 @@ import (
 	"strconv"
 )
 
-func List(namespaces string) (*releaseListWriter, error) {
+func List(namespace string) (*releaseListWriter, error) {
 
-	initKubeConfig()
+	ENV_CS.Lock()
+	err := os.Setenv("HELM_NAMESPACE", namespace)
+	if err!=nil{
+		panic(err)
+	}
+	settings := cli.New()
+	ENV_CS.Unlock()
+
 	cfg := new(action.Configuration)
 	client := action.NewList(cfg)
-	fmt.Printf("%+v",settings.EnvVars())
+	fmt.Printf("%+v", settings.EnvVars())
 
-	if err := cfg.Init(settings.RESTClientGetter(), Namespace(namespaces), os.Getenv("HELM_DRIVER"), debug); err != nil {
+	if err := cfg.Init(settings.RESTClientGetter(), namespace, os.Getenv("HELM_DRIVER"), debug); err != nil {
 		return nil, err
 	}
 
@@ -34,19 +42,6 @@ func List(namespaces string) (*releaseListWriter, error) {
 	s, _ := res.WriteToJSON()
 	fmt.Println(s)
 	return res, nil
-}
-func Namespace(namespace string) string {
-
-	if namespace == "allnamespaces" {
-		return ""
-	}
-	if namespace != "" {
-		return namespace
-	}
-	if ns, _, err := settings.RESTClientGetter().ToRawKubeConfigLoader().Namespace(); err == nil {
-		return ns
-	}
-	return "default"
 }
 
 type releaseElement struct {
@@ -93,11 +88,9 @@ func (r *releaseListWriter) WriteTable(out io.Writer) error {
 	return output.EncodeTable(out, table)
 }
 
-
 func (r *releaseListWriter) WriteToJSON() (s string, err error) {
 	buf := new(bytes.Buffer)
 	err = output.EncodeJSON(buf, r.Releases)
 	s = buf.String()
 	return s, err
 }
-

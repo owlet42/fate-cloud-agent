@@ -1,4 +1,4 @@
-package pkg
+package service
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 )
 
 func debug(format string, v ...interface{}) {
-	if settings.Debug {
+	if true {
 		format = fmt.Sprintf("[debug] %s\n", format)
-		log.Output(2, fmt.Sprintf(format, v...))
+		_ = log.Output(2, fmt.Sprintf(format, v...))
 	}
 }
