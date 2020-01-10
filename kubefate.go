@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fate-cloud-agent/pkg/api"
+	"fate-cloud-agent/pkg/cli"
+	"os"
 )
 
 func main() {
-	//cli.CommandLine()
-	api.Run()
+	cli.Run(os.Args)
 }

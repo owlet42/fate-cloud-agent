@@ -1,0 +1,7 @@
+Registry: "federatedai"
+Tag: "1.2.0-release"
+PartyList:
+- PartyId: 10000
+  NodePort: 30010
+- PartyId: 9999
+  NodePort: 30009

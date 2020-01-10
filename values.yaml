@@ -1,0 +1,98 @@
+#nfspath: /data/fate-data
+#nfsserver: 192.168.0.2
+
+image:
+  registry: {{ .Registry }}
+  isThridParty: {{ .isThridParty | default "231" }}
+  tag: {{ .Tag }}
+  pullPolicy: IfNotPresent
+partyId: {{ .PartyId }}
+host:
+  fateboard: {{ .PartyId }}.fateboard.fedai.org
+nodePort: {{ .NodePort }}
+
+partyList:
+  - partyId: 9999
+    partyIp: 10.161.37.3
+    partyPort: 30009
+mysql:
+  mysql_root_password: fate_dev
+  mysql_database: fate
+  mysql_user: fate
+  mysql_password: fate_dev
+redis:
+  requirepass: fate_dev
+eggList:
+  - egg: egg
+    nodeLabel: fedai.org
+    value: 
+nodeSelector:
+  fateboard:
+    nodeLabel: fedai.org
+    value: 
+  federation:
+    nodeLabel: fedai.org
+    value: 
+  metaService:
+    nodeLabel: fedai.org
+    value: 
+  mysql:
+    nodeLabel: fedai.org
+    value: 
+  proxy:
+    nodeLabel: fedai.org
+    value: 
+  python:
+    nodeLabel: fedai.org
+    value: 
+  redis:
+    nodeLabel: fedai.org
+    value: 
+  roll:
+    nodeLabel: fedai.org
+    value: 
+  servingServer:
+    nodeLabel: fedai.org
+    value: 
+
+modules:
+  proxy: 
+    include: true
+    ip: proxy
+    type: NodePort
+  egg: 
+    include: true
+    ip: egg
+    type: ClusterIP
+  fateboard: 
+    include: true
+    ip: fateboard
+    type: ClusterIP
+  fateflow: 
+    include: true
+    ip: fateflow
+    type: ClusterIP
+  federation: 
+    include: true
+    ip: federation
+    type: ClusterIP
+  metaService: 
+    include: true
+    ip: meta-service
+    type: ClusterIP
+  mysql: 
+    include: true
+    ip: mysql
+    type: ClusterIP
+  redis: 
+    include: true
+    ip: redis
+    type: ClusterIP
+  roll: 
+    include: true
+    ip: roll
+    type: ClusterIP
+  python: 
+    include: true
+    ip: python
+    type: ClusterIP
