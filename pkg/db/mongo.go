@@ -10,12 +10,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+var ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
+var db *mongo.Database
 
-func Db() {
+func ConnectDb() {
 
 	// 连接数据库
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second) // ctx
-	opts := options.Client().ApplyURI("mongodb://10.160.202.95:27017")  // opts
+	// ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
+	opts := options.Client().ApplyURI("mongodb://root:root@localhost:27017")  // opts
 	client, err := mongo.Connect(ctx, opts)                             // client
 	if err != nil {
 		log.Println(err)
@@ -23,25 +25,24 @@ func Db() {
 	}
 
 	// 使用
-	db := client.Database("KubeFate") // database
-	stu := db.Collection("fate")      // collection
+	db = client.Database("KubeFate") // database
+}
+func InsertFate(fate Fate) {
+	collection := db.Collection("fate")      // collection
 
-	// 插入数据
-	xm1 := Fate{Name: "fate-10000", NameSpaces: "fate-10000", Version: "1.2.0"}
-	_, err = stu.InsertOne(ctx, xm1)
+
+	insertResult, err := collection.InsertOne(ctx, fate)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	xm2 := Fate{Name: "fate-9999", NameSpaces: "fate-9999", Version: "1.2.0"}
-	_, err = stu.InsertOne(ctx, xm2)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+	fmt.Println("Inserted a single document: ", insertResult.InsertedID)
+}
 
+func FindFate(){
 	// 查询数据  bson.D{}创建查询条件
-	cur, err := stu.Find(ctx, bson.M{}) // find
+	collection := db.Collection("fate")
+	cur, err := collection.Find(ctx, bson.M{}) // find
 	if err != nil {
 		log.Println(err)
 		return
@@ -73,8 +74,16 @@ func Db() {
 
 }
 
-type Fate struct {
+type FateCluster struct {
 	Name       string `json:"name"`
 	NameSpaces string `json:"namespaces"`
 	Version    string `json:"version"`
+	PartyID    string `json:"PartyID"`
+	Chart      string `json:"chart"`
+}
+
+type Chart struct {
+	version	    string `json:"version"`
+	value       string `json:"value"`
+	template    string `json:"template"`
 }
