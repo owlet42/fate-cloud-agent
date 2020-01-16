@@ -31,6 +31,7 @@ type Cluster struct {
 	Type       JobType
 	CreateTime time.Time
 	Status     status
+	Id         string // FateCluster id
 	MateData   interface{}
 	Err        error
 	Sub        []interface{}
@@ -74,7 +75,7 @@ func install(j *Cluster) {
 		j.Status = Fail
 		return
 	}
-	db.Save("fate", f)
+	j.Id = db.Save("fate", f)
 	j.Status = Success
 	return
 }
@@ -86,7 +87,7 @@ func upgrade(j *Cluster) {
 		j.Status = Fail
 		return
 	}
-	db.Update("fate", f.PartyID, f)
+	db.Update("fate", j.Id, f)
 	j.Status = Success
 	return
 }
@@ -98,7 +99,7 @@ func uninstall(j *Cluster) {
 		j.Status = Fail
 		return
 	}
-	db.Delete("fate", f.PartyID)
+	db.Delete("fate", j.Id)
 	j.Status = Success
 	return
 }
