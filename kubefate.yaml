@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubefate
+  labels:
+    fate: kubefate
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      fate: kubefate
+  template:
+    metadata:
+      labels:
+        fate: kubefate
+    spec:
+      containers:
+        - image: federatedai/kubefate
+          imagePullPolicy: IfNotPresent
+          name: kubefate
+          ports:
+            - containerPort: 8080
+        - image: mongo
+          imagePullPolicy: IfNotPresent
+          name: mongo
+          ports:
+            - containerPort: 27017
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubefate
+  labels:
+    fate: kubefate
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+  type: NodePort
+  selector:
+    fate: kubefate
