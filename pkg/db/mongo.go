@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -33,12 +32,13 @@ func ConnectDb() error {
 
 	// 使用
 	DB.db = client.Database("KubeFate") // database
+	return nil
 }
 
 func Disconnect() error {
-
+	return nil
 }
 
 func Ping() error {
-
+	return nil
 }
