@@ -8,7 +8,7 @@ import (
 
 func Save(name string, i interface{}) string {
 	ConnectDb()
-	collection := db.Collection(name)
+	collection := DB.db.Collection(name)
 
 	result, err := collection.InsertOne(ctx, i)
 	if err != nil {
@@ -23,7 +23,7 @@ func Save(name string, i interface{}) string {
 // return one
 func FindOne(name string, id string, i interface{}) {
 
-	collection := db.Collection(name)
+	collection := DB.db.Collection(name)
 
 	objectId := bson.ObjectIdHex(id)
 	_ = collection.FindOne(ctx, objectId).Decode(i)
