@@ -13,7 +13,7 @@ type FateCluster struct {
 	NameSpaces string `json:"namespaces"`
 	Version    string `json:"version"`
 	PartyId    string `json:"party_id"`
-	Chart      Helm  `json:"chart"`
+	Chart      Helm   `json:"chart"`
 }
 
 type Helm struct {
@@ -55,11 +55,11 @@ func FindFateCluster() ([]*FateCluster, error) {
 	defer cur.Close(ctx)
 	fcs := []*FateCluster{}
 	for cur.Next(ctx) {
-
 		s := new(FateCluster)
-		// s.Chart = *new(Helm)
-		fmt.Printf("%+v",s)
-		err = cur.Decode(s)        // decode 到对象
+ 		var result bson.M
+		err := cur.Decode(&result)
+		bsonBytes, _ := bson.Marshal(result)
+		bson.Unmarshal(bsonBytes, s)
 		if err != nil {
 			log.Println(err)
 			return nil,err
