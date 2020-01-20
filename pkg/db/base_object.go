@@ -2,60 +2,90 @@ package db
 
 import(
 	"go.mongodb.org/mongo-driver/bson"
+	"github.com/satori/go.uuid"
 	"context"
-	"fmt"
 	"log"
 	"time"
 )
 
-type BaseObject interface {
-	getCollection() string
+type PersistentObject interface {
+	Save(col string, po PersistentObject) (string, error)
+	Find(col string, bo interface{}) (interface{}, error) 
+	FindByUUID(col string, uuid string, bo interface{})  (interface{}, error)
+	DeleteByUUID(col string, uuid string) error
 }
 
-type BaseStruct struct {
-	Uuid string
+type BaseObject struct {
+	Uuid string `json:"UUID"`
 }
 
-type TestBaseStruct struct {
-	BaseStruct
-	Name string
+func NewBaseObject() (*BaseObject){
+	return &BaseObject{
+		Uuid: uuid.NewV4().String(),
+	}
 }
 
-func (baseStruct BaseStruct) Save(col string,i interface{}) (string, error) {
+func (baseObject BaseObject) Save(col string, po PersistentObject) (string, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := DB.db.Collection(col)
-	_, err := collection.InsertOne(ctx, i)
+	db, _ := ConnectDb()
+	collection := db.Collection(col)
+	_, err := collection.InsertOne(ctx, po)
 	if err != nil {
 		log.Println(err)
 		return "",err
 	}
-	return baseStruct.Uuid, nil
+	return baseObject.Uuid, nil
 }
-func (baseStruct BaseStruct) Find(col string) ([]*BaseStruct, error) {
+
+func (baseObject BaseObject) Find(col string, bo interface{}) (interface{}, error) {
 		ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-		collection := DB.db.Collection(col)
-		cur, err := collection.Find(ctx, bson.M{}) // find
+		db, _ := ConnectDb()
+		collection := db.Collection(col)
+		cur, err := collection.Find(ctx, bson.D{}) // find
 		if err != nil {
 			log.Println(err)
 			return nil,err
 		}
 		defer cur.Close(ctx)
-		baseStructs := []*BaseStruct{}
+		var results []interface{}
 		for cur.Next(ctx) {
-			s := new(BaseStruct)
-			var result bson.M
-			err := cur.Decode(&result) // decode 到map
-			err = cur.Decode(s)        // decode 到对象
+			err = cur.Decode(&bo) 
 			if err != nil {
 				log.Println(err)
 				return nil,err
 			}
-			fmt.Println(s)
-			baseStructs = append(baseStructs, s)
+			results = append(results, bo)
 		}
-		return baseStructs,nil
+		return results,nil
 	}
 
+func (baseObject BaseObject) FindByUUID(col string, uuid string, bo interface{}) (interface{}, error) {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	db, _ := ConnectDb()
+	collection := db.Collection(col)
+	filter := bson.M{"baseobject.uuid": uuid}
+	var err error
+	err = collection.FindOne(ctx, filter).Decode(&bo)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	return bo, nil
+}
+
+func (baseObject BaseObject) DeleteByUUID(col string, uuid string) error {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	db, _ := ConnectDb()
+	collection := db.Collection(col)
+	filter := bson.M{"baseobject.uuid": uuid}
+	deleteResult, err := collection.DeleteMany(ctx, filter)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	log.Printf("Deleted %v documents in the %s collection\n", deleteResult.DeletedCount, col)
+	return err
+}
 
 
 

@@ -17,22 +17,20 @@ type kubeFATEDatabase struct{
 	mongoPassword string
 }
 
-var DB kubeFATEDatabase = kubeFATEDatabase{mongoUrl:"localhost:27017", mongoUsername:"root", mongoPassword:"root"}
+var DB kubeFATEDatabase = kubeFATEDatabase{mongoUrl:"127.0.0.1:27017", mongoUsername:"root", mongoPassword:"root"}
 
-func ConnectDb() error {
-
-	// 连接数据库
-	// ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
-	opts := options.Client().ApplyURI("mongodb://"+DB.mongoUsername+":"+DB.mongoPassword+"@"+DB.mongoUrl)  // opts
-	client, err := mongo.Connect(ctx, opts)                             // client
-	if err != nil {
-		log.Println(err)
-		return err
+func ConnectDb() (*mongo.Database, error) {
+	if DB.db == nil {
+		opts := options.Client().ApplyURI("mongodb://"+DB.mongoUsername+":"+DB.mongoPassword+"@"+DB.mongoUrl)  // opts
+		client, err := mongo.Connect(ctx, opts)   // client
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		DB.db = client.Database("KubeFate") 
 	}
-
-	// 使用
-	DB.db = client.Database("KubeFate") // database
-	return nil
+	
+	return DB.db, nil
 }
 
 func Disconnect() error {
