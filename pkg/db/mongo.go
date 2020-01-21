@@ -17,20 +17,20 @@ type kubeFATEDatabase struct{
 	mongoPassword string
 }
 
-var DB kubeFATEDatabase = kubeFATEDatabase{mongoUrl:"127.0.0.1:27017", mongoUsername:"root", mongoPassword:"root"}
+var db kubeFATEDatabase = kubeFATEDatabase{mongoUrl:"127.0.0.1:27017", mongoUsername:"root", mongoPassword:"root"}
 
 func ConnectDb() (*mongo.Database, error) {
-	if DB.db == nil {
-		opts := options.Client().ApplyURI("mongodb://"+DB.mongoUsername+":"+DB.mongoPassword+"@"+DB.mongoUrl)  // opts
+	if db.db == nil {
+		opts := options.Client().ApplyURI("mongodb://"+db.mongoUsername+":"+db.mongoPassword+"@"+db.mongoUrl)  // opts
 		client, err := mongo.Connect(ctx, opts)   // client
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
-		DB.db = client.Database("KubeFate") 
+		db.db = client.Database("KubeFate")
 	}
 	
-	return DB.db, nil
+	return db.db, nil
 }
 
 func Disconnect() error {

@@ -1,10 +1,7 @@
 package db
 import (
 	"go.mongodb.org/mongo-driver/bson"
-	"context"
-	"fmt"
-	"log"
-	"time"
+	"github.com/satori/go.uuid"
 )
 
 type FateCluster struct {
@@ -22,101 +19,42 @@ type Helm struct {
 	Template string `json:"template"` 
 }
 
-func NewFateCluster() *FateCluster {
+func NewFateCluster(name string, nameSpaces string, version string, partyId string, chart Helm) *FateCluster {
+	fateCluster := &FateCluster{
+		Uuid: uuid.NewV4().String(),
+		Name: name,
+		NameSpaces: nameSpaces,
+		Version: version,
+		PartyId: partyId,
+		Chart: chart,
+	}
+
+	return fateCluster
+}
+
+func NewBaseFateCluster() *FateCluster {
 	return new(FateCluster)
 }
 
-func (fate *FateCluster) GetCollection() string {
+func NewHelm(name string, value string, template string) *Helm {
+	helm := &Helm{
+		Name: name,
+		Value: value,
+		Template: template,
+	}
+
+	return helm
+}
+
+func (fate *FateCluster) getCollection() string {
 	return "fate"
 }
 
-
-func  SaveFateCluster(fateCluster *FateCluster) (string, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := DB.db.Collection("fate")      // collection
-
-	_, err := collection.InsertOne(ctx, fateCluster)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-	return fateCluster.Uuid, nil
+func (fate *FateCluster) GetUuid() string {
+	return fate.Uuid
 }
 
-
-func FindFateCluster() ([]*FateCluster, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := DB.db.Collection("fate")
-	cur, err := collection.Find(ctx, bson.M{}) // find
-	if err != nil {
-		log.Println(err)
-		return nil,err
-	}
-	defer cur.Close(ctx)
-	fcs := []*FateCluster{}
-	for cur.Next(ctx) {
-		s := new(FateCluster)
- 		var result bson.M
-		err := cur.Decode(&result)
-		bsonBytes, _ := bson.Marshal(result)
-		bson.Unmarshal(bsonBytes, s)
-		if err != nil {
-			log.Println(err)
-			return nil,err
-		}
-		fmt.Println(s)
-		fcs = append(fcs, s)
-	}
-	return fcs,nil
-}
-
-func FindFateClusterByUUID(uuid string) (*FateCluster, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := DB.db.Collection("fate")
-	result := new(FateCluster)
-	filter := bson.M{"uuid": uuid}
-	var err error
-	err = collection.FindOne(ctx, filter).Decode(result)
-	if err != nil {
-			log.Fatal(err)
-			return nil, err
-	}
-	return result, nil
-}
-
-func UpdateFateClusterByUUID(uuid string, fateCluster *FateCluster) (*FateCluster, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := DB.db.Collection("fate")
-	doc, err := toDoc(fateCluster)
-	update := bson.D{
-		{"$set", doc},
-	}
-	filter := bson.D{{"uuid", uuid}}
-	// updateResult := collection.FindOneAndUpdate(ctx, filter, update)
-	collection.FindOneAndUpdate(ctx, filter, update)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	return fateCluster, nil
-}
-func DeleteFateCluster(uuid string) error {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	collection := DB.db.Collection("fate")
-	filter := bson.D{{"uuid", uuid}}
-	deleteResult, err := collection.DeleteMany(ctx, filter)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Deleted %v documents in the trainers collection\n", deleteResult.DeletedCount)
-	return err
-}
-
-func toDoc(v interface{}) (doc *bson.D, err error) {
-    data, err := bson.Marshal(v)
-    if err != nil {
-        return
-    }
-    err = bson.Unmarshal(data, &doc)
-    return
+func (fate *FateCluster) FromBson(m *bson.M){
+	bsonBytes, _ := bson.Marshal(m)
+	bson.Unmarshal(bsonBytes, fate)
 }
