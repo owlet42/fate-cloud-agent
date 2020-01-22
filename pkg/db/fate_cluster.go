@@ -32,10 +32,6 @@ func NewFateCluster(name string, nameSpaces string, version string, partyId stri
 	return fateCluster
 }
 
-func NewBaseFateCluster() *FateCluster {
-	return new(FateCluster)
-}
-
 func NewHelm(name string, value string, template string) *Helm {
 	helm := &Helm{
 		Name: name,
