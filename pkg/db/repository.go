@@ -52,7 +52,7 @@ func Find(repository Repository) ([]interface{}, error) {
 	return persistents, nil
 }
 
-func FindByUUID(repository Repository, uuid string) (*Repository, error) {
+func FindByUUID(repository Repository, uuid string) (interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	db, _ := ConnectDb()
 	collection := db.Collection(repository.getCollection())
@@ -63,35 +63,38 @@ func FindByUUID(repository Repository, uuid string) (*Repository, error) {
 		return nil, err
 	}
 	defer cur.Close(ctx)
+	var r interface{}
 	for cur.Next(ctx) {
 		// Decode to bson map
 		var result bson.M
 		err := cur.Decode(&result)
 		// Convert bson.M to struct
-		repository.FromBson(&result)
+		r = repository.FromBson(&result)
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
 	}
-	return &repository, nil
+	return r, nil
 }
 
-func UpdateByUUID(repository Repository, uuid string) (*Repository, error) {
+func UpdateByUUID(repository Repository, uuid string) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	db, _ := ConnectDb()
 	collection := db.Collection(repository.getCollection())
 	doc, err := ToDoc(repository)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
 	update := bson.D{
 		{"$set", doc},
 	}
-	filter := bson.D{{"uuid", uuid}}
+	filter := bson.M{"uuid": uuid}
 	collection.FindOneAndUpdate(ctx, filter, update)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	return &repository, nil
+
+	return nil
 }
 
 func ToDoc(v interface{}) (doc *bson.D, err error) {
