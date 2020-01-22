@@ -29,7 +29,9 @@ func (user *User) GetUuid() string {
 	return user.Uuid
 }
 
-func (user *User) FromBson(m *bson.M){
+func (user *User) FromBson(m *bson.M) interface{}{
 	bsonBytes, _ := bson.Marshal(m)
 	bson.Unmarshal(bsonBytes, user)
+
+	return *user
 }

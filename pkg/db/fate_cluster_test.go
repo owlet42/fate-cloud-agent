@@ -4,12 +4,14 @@ import (
 	"testing"
 )
 
+var clusterUuid string
+
 func TestNewFateCluster(t *testing.T) {
 	helm := NewHelm("name","value","template")
 	fate := NewFateCluster("fate-cluster1","fate-nameSpaces","v1.2.0","party-1111",*helm)
-	uuid, error := Save(fate)
+	clusterUuid, error := Save(fate)
 	if error ==nil {
-		t.Log("uuid: ", uuid)
+		t.Log("uuid: ", clusterUuid)
 	}
 }
 
@@ -23,7 +25,7 @@ func TestFindFateCluster(t *testing.T) {
 
 func TestFindFateClusterByUuid(t *testing.T) {
 	fate := NewBaseFateCluster()
-	result, error := FindByUUID(fate, "fff51a40-bc90-4124-827c-7a88d4cdd970")
+	result, error := FindByUUID(fate, clusterUuid)
 	if error == nil {
 		t.Log(ToJson(result))
 	}

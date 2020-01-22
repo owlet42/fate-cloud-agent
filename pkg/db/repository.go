@@ -10,7 +10,7 @@ import(
 
 type Repository interface {
 	getCollection() string
-	FromBson(m *bson.M)
+	FromBson(m *bson.M) interface{}
 	GetUuid() string
 }
 
@@ -26,7 +26,7 @@ func Save(repository Repository) (string, error){
 	return repository.GetUuid(),nil
 }
 
-func Find(repository Repository) ([]*Repository, error) {
+func Find(repository Repository) ([]interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	db, _ := ConnectDb()
 	collection := db.Collection(repository.getCollection())
@@ -36,18 +36,18 @@ func Find(repository Repository) ([]*Repository, error) {
 		return nil, err
 	}
 	defer cur.Close(ctx)
-	persistents := []*Repository{}
+	var persistents []interface{}
 	for cur.Next(ctx) {
 		// Decode to bson map
 		var result bson.M
 		err := cur.Decode(&result)
 		// Convert bson.M to struct
-		repository.FromBson(&result)
+		r := repository.FromBson(&result)
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
-		persistents = append(persistents, &repository)
+		persistents = append(persistents, r)
 	}
 	return persistents, nil
 }

@@ -54,7 +54,8 @@ func (fate *FateCluster) GetUuid() string {
 	return fate.Uuid
 }
 
-func (fate *FateCluster) FromBson(m *bson.M){
+func (fate *FateCluster) FromBson(m *bson.M) interface{}{
 	bsonBytes, _ := bson.Marshal(m)
 	bson.Unmarshal(bsonBytes, fate)
+	return *fate
 }

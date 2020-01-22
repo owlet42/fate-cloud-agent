@@ -4,12 +4,13 @@ import (
 	"testing"
 )
 
+var userUuid string
 
 func TestAddUser(t *testing.T) {
 	u := NewUser("Layne", "test")
-	result, error := Save(u)
+	userUuid, error := Save(u)
 	if error == nil {
-		t.Log(result)
+		t.Log(userUuid)
 	}
 }
 
@@ -19,13 +20,13 @@ func TestFindUsers(t *testing.T) {
 	t.Log(ToJson(results))
 }
 
-func TestFindByUUID(t *testing.T) {
-	user := &User{}
-	results, _ := FindByUUID(user, "14cdfbae-0013-4f3c-b389-a04395eb50f4")
-	t.Log(ToJson(results))
-}
+// func TestFindByUUID(t *testing.T) {
+// 	user := &User{}
+// 	results, _ := FindByUUID(user, "7dc85dd9-ef29-4854-a2d6-0a3f8f5d1ab4")
+// 	t.Log(ToJson(results))
+// }
 
-func TestDeleteByUUID(t *testing.T) {
-	user := &User{}
-	DeleteByUUID(user, "14cdfbae-0013-4f3c-b389-a04395eb50f4")
-}
+// func TestDeleteByUUID(t *testing.T) {
+// 	user := &User{}
+// 	DeleteByUUID(user, "7dc85dd9-ef29-4854-a2d6-0a3f8f5d1ab4")
+// }
