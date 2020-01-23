@@ -35,9 +35,23 @@ func TestFindFateClusterByUuid(t *testing.T) {
 
 func TestUpdateCluster(t *testing.T) {
 	t.Log("Update: " + clusterJustAddedUuid)
-	helm := NewHelm("name2","value2","template2")
-	fate := NewFateCluster("fate-cluster2","fate-nameSpaces","v1.2.0","party-2222",*helm)
-	UpdateByUUID(fate, clusterJustAddedUuid)
+	fate := &FateCluster{}
+	result, error := FindByUUID(fate, clusterJustAddedUuid)
+	if error == nil {
+		fate2Update := result.(FateCluster)
+		fate2Update.Name = "fate-cluster2"
+		fate2Update.NameSpaces = "fate-nameSpaces"
+		fate2Update.PartyId = "party-2222"
+
+		helm := NewHelm("name2","value2","template2")
+		fate2Update.Chart = *helm
+		UpdateByUUID(&fate2Update, clusterJustAddedUuid)
+	}
+
+	result, error = FindByUUID(fate, clusterJustAddedUuid)
+	if error == nil {
+		t.Log(ToJson(result))
+	}
 }
 
 func TestDeleteClusterByUUID(t *testing.T) {
