@@ -11,6 +11,7 @@ require (
 	github.com/gosuri/uitable v0.0.1
 	github.com/pkg/errors v0.8.1
 	github.com/satori/go.uuid v1.2.0
+	github.com/spf13/viper v1.3.2
 	github.com/tidwall/pretty v1.0.0 // indirect
 	github.com/urfave/cli/v2 v2.1.1
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect

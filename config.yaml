@@ -1,7 +1,23 @@
-Registry: "federatedai"
-Tag: "1.2.0-release"
-PartyList:
-- PartyId: 10000
-  NodePort: 30010
-- PartyId: 9999
-  NodePort: 30009
+# Comm prefix FATECLOUD
+registry: "federatedai"
+tag: "1.2.0-release"
+partyList:
+  - partyId: 10000
+    nodePort: 30010
+    namespace: fate-10000
+  - partyId: 9999
+    nodePort: 30009
+    namespace: fate-9999
+
+server:
+  address: localhost
+  port: 8080
+
+mongo:
+  url: localhost:27017
+  username: root
+  password: root
+  database: KubeFate
+
+# TODO
+# persistent layer
