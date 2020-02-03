@@ -7,7 +7,7 @@ import (
 var userJustAddedUuid string
 
 func TestAddUser(t *testing.T) {
-	u := NewUser("Layne", "test")
+	u := NewUser("Layne", "test", "email@vmware.com", Deprecate)
 	userUuid, error := Save(u)
 	if error == nil {
 		t.Log(userUuid)

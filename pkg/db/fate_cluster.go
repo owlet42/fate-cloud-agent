@@ -5,13 +5,36 @@ import (
 )
 
 type FateCluster struct {
-	Uuid       string `json:"uuid"` 
-	Name       string `json:"name"`
-	NameSpaces string `json:"namespaces"`
-	Version    string `json:"version"`
-	PartyId    string `json:"party_id"`
-	Chart      Helm   `json:"chart"`
+	Uuid             string           `json:"uuid"`
+	Name             string           `json:"name"`
+	NameSpaces       string           `json:"namespaces"`
+	Version          string           `json:"version"`
+	Chart            Helm             `json:"chart"`
+	Status           ClusterStatus    `json:"status"`
+	Backend          ComputingBackend `json:"backend"`
+	BootstrapParties Parties          `json:"bootstrap_parties"`
 }
+
+type Parties struct {
+	PartyId   string `json:"party_id"`
+	Endpoint  string `json:"endpoint"`
+	PartyType string `json:"party_type"`
+}
+
+type ComputingBackend struct {
+	BackendType string `json:"backend_type"`
+	BackendInfo string `json:"backend_info"`
+}
+
+type ClusterStatus int
+
+const (
+	Creating ClusterStatus = iota
+	Deleting
+	Updating
+	Running
+	Unavailable
+)
 
 type Helm struct {
 	Name     string `json:"name"` 
@@ -19,17 +42,38 @@ type Helm struct {
 	Template string `json:"template"` 
 }
 
-func NewFateCluster(name string, nameSpaces string, version string, partyId string, chart Helm) *FateCluster {
+func NewFateCluster(name string, nameSpaces string, version string, chart Helm, status ClusterStatus, backend ComputingBackend, party Parties) *FateCluster {
 	fateCluster := &FateCluster{
 		Uuid: uuid.NewV4().String(),
 		Name: name,
 		NameSpaces: nameSpaces,
 		Version: version,
-		PartyId: partyId,
 		Chart: chart,
+		Status: status,
+		Backend: backend,
+		BootstrapParties: party,
 	}
 
 	return fateCluster
+}
+
+func NewParties(partyId string, endpoint string, partyType string) *Parties {
+	party := &Parties{
+		PartyId: partyId,
+		Endpoint: endpoint,
+		PartyType: partyType,
+	}
+
+	return party
+}
+
+func NewComputingBackend(BackendType string, BackendInfo string) *ComputingBackend {
+	backend := &ComputingBackend{
+		BackendType: BackendType,
+		BackendInfo: BackendInfo,
+	}
+
+	return backend
 }
 
 func NewHelm(name string, value string, template string) *Helm {

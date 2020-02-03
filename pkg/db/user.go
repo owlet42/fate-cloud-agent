@@ -9,13 +9,24 @@ type User struct {
 	Uuid     string `json:"uuid"`
 	Username string `json:"username"` 
 	Password string `json:"password"` 
+	Email    string `json:"email`
+	Status   UserStatus `json:"userStatus"`
 }
 
-func NewUser (username string, password string) *User {
+type UserStatus int
+
+const (
+	Deprecate UserStatus = iota
+	Available
+)
+
+func NewUser (username string, password string, email string, userStatus UserStatus) *User {
 	u := &User{
 		Uuid: uuid.NewV4().String(),
 		Username: username,
 		Password: password,
+		Email: email,
+		Status: userStatus,
 	}
 
 	return u
