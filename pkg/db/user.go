@@ -6,10 +6,10 @@ import (
 )
 
 type User struct {
-	Uuid     string `json:"uuid"`
-	Username string `json:"username"` 
-	Password string `json:"password"` 
-	Email    string `json:"email`
+	Uuid     string     `json:"uuid"`
+	Username string     `json:"username"` 
+	Password string     `json:"password"` 
+	Email    string     `json:"email"`
 	Status   UserStatus `json:"userStatus"`
 }
 
@@ -20,13 +20,13 @@ const (
 	Available
 )
 
-func NewUser (username string, password string, email string, userStatus UserStatus) *User {
+func NewUser (username string, password string, email string) *User {
 	u := &User{
 		Uuid: uuid.NewV4().String(),
 		Username: username,
 		Password: password,
 		Email: email,
-		Status: userStatus,
+		Status: Deprecate,
 	}
 
 	return u

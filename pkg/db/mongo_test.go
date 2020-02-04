@@ -12,13 +12,7 @@ import (
 )
 
 func TestDB_InitKubeFATEDatabase(t *testing.T) {
-	config.InitViper()
-
-	viper.AddConfigPath("../../")
-	err := viper.ReadInConfig()
-	if err != nil {
-		t.Errorf("Fatal error config file: %s \n", err)
-	}
+	InitConfigForTest()
 
 	initKubeFATEDatabase()
 
@@ -46,9 +40,7 @@ func TestDB_InitKubeFATEDatabase(t *testing.T) {
 }
 
 func TestDB_ConnectDb(t *testing.T) {
-	config.InitViper()
-	viper.AddConfigPath("../../")
-	viper.ReadInConfig()
+	InitConfigForTest()
 
 	db, _ := ConnectDb()
 	ctx, _ = context.WithTimeout(context.Background(), 2*time.Second)
@@ -58,4 +50,10 @@ func TestDB_ConnectDb(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to ping db: %s", err)
 	}
+}
+
+func InitConfigForTest() {
+	config.InitViper()
+	viper.AddConfigPath("../../")
+	viper.ReadInConfig()
 }

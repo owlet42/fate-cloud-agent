@@ -1,23 +1,14 @@
 package db
 
 import (
-	"fate-cloud-agent/pkg/utility/config"
 	"testing"
-
-	"github.com/spf13/viper"
 )
 
 var userJustAddedUuid string
 
-func InitConfigForTest() {
-	config.InitViper()
-	viper.AddConfigPath("../../")
-	viper.ReadInConfig()
-}
-
 func TestAddUser(t *testing.T) {
 	InitConfigForTest()
-	u := NewUser("Layne", "test", "email@vmware.com", Deprecate)
+	u := NewUser("Layne", "test", "email@vmware.com")
 	userUuid, error := Save(u)
 	if error == nil {
 		t.Log(userUuid)
