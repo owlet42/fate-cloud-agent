@@ -6,7 +6,6 @@ require (
 	github.com/DataDog/zstd v1.4.4 // indirect
 	github.com/Masterminds/sprig/v3 v3.0.2
 	github.com/gin-gonic/gin v1.5.0
-	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/gosuri/uitable v0.0.1
 	github.com/pkg/errors v0.8.1
