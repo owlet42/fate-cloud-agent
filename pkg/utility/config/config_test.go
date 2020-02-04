@@ -26,6 +26,8 @@ func TestConfig_DirExists(t *testing.T) {
 func TestConfig_InitViper(t *testing.T) {
 	InitViper()
 
+	viper.AddConfigPath("../../../")
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		t.Errorf("Fatal error config file: %s \n", err)

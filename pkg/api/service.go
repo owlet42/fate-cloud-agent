@@ -1,9 +1,13 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
+// Run starts the API server
 func Run() {
 	r := gin.Default()
 	Router(r)
@@ -11,5 +15,10 @@ func Run() {
 	//r.GET("/get", Get)
 	//r.GET("/list", List)
 	//r.GET("/delete", Delete)
-	_ = r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+
+	address := viper.GetString("server.address")
+	port := viper.GetString("server.port")
+	endpoint := fmt.Sprintf("%s:%s", address, port)
+
+	_ = r.Run(endpoint)
 }

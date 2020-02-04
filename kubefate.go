@@ -8,12 +8,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-func main() {
+func initConfig() {
 	config.InitViper()
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic("Unable to find config file")
 	}
+}
 
+func main() {
+	initConfig()
 	cli.Run(os.Args)
 }
