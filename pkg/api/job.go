@@ -9,7 +9,7 @@ func (j *Job) Router(r *gin.RouterGroup) {
 
 	job := r.Group("/job")
 	{
-		job.GET("", j.getJobList)
+		job.GET("/", j.getJobList)
 		job.GET("/:jobId", j.getJob)
 		job.DELETE("/:jobId", j.deleteJob)
 	}

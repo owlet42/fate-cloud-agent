@@ -1,6 +1,9 @@
 package api
 
-import "github.com/gin-gonic/gin"
+import (
+	"fate-cloud-agent/pkg/db"
+	"github.com/gin-gonic/gin"
+)
 
 type Cluster struct {
 }
@@ -11,8 +14,8 @@ func (c *Cluster) Router(r *gin.RouterGroup) {
 	{
 		cluster.POST("", c.createCluster)
 		cluster.PUT("", c.setCluster)
-		cluster.GET("", c.getCluster)
-		cluster.GET("/:clusterId/:name", c.getClusterList)
+		cluster.GET("/", c.getCluster)
+		cluster.GET("/:clusterId", c.getClusterList)
 		cluster.DELETE("/:clusterId", c.deleteCluster)
 
 		//todo panic: 'findByName' in new path '/v1/cluster/findByName' conflicts with existing wildcard ':clusterId' in existing prefix '/v1/cluster/:clusterId' [recovered]
@@ -31,20 +34,28 @@ func (_ *Cluster) setCluster(c *gin.Context) {
 }
 
 func (_ *Cluster) getCluster(c *gin.Context) {
-	c.JSON(200, gin.H{"msg": "getCluster success"})
+	clusterId:=c.Param("clusterId")
+
+	fate := &db.FateCluster{}
+	result, error := db.FindByUUID(fate, clusterId)
+	if error != nil {
+		c.JSON(400, gin.H{"msg": error})
+	}
+
+	c.JSON(200, gin.H{"data": result.(db.FateCluster)})
+
 }
 
 func (_ *Cluster) getClusterList(c *gin.Context) {
 	var person struct {
-		ID   string `uri:"clusterId"`
-		Name string `uri:"name"`
+		ID string `uri:"clusterId"`
 	}
 	if err := c.ShouldBindUri(&person); err != nil {
 		c.JSON(400, gin.H{"msg": err})
 		return
 	}
 	c.Param("clusterId")
-	c.JSON(200, gin.H{"name": person.Name, "uuid": person.ID, "Param": c.Param("clusterId")})
+	c.JSON(200, gin.H{"uuid": person.ID, "Param": c.Param("clusterId")})
 }
 
 func (_ *Cluster) deleteCluster(c *gin.Context) {
