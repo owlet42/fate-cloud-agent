@@ -46,3 +46,13 @@ func InitViper() error {
 
 	return nil
 }
+
+// InitConfig initials the viper and read config in
+func InitConfig() error {
+	InitViper()
+	err := viper.ReadInConfig()
+	if err != nil {
+		return err
+	}
+	return nil
+}
