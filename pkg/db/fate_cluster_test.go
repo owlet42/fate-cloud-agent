@@ -5,17 +5,22 @@ import (
 )
 
 var clusterJustAddedUuid string
+
 func TestNewFateCluster(t *testing.T) {
+	InitConfigForTest()
 	helm := NewHelm("name","value","template")
-	fate := NewFateCluster("fate-cluster1","fate-nameSpaces","v1.2.0","party-1111",*helm)
+	party := NewParties("9999","192.168.0.1","normal")
+	backend := NewComputingBackend("egg","1")
+	fate := NewFateCluster("fate-cluster1","fate-nameSpaces","v1.2.0",*helm,Creating,*backend,*party)
 	clusterUuid, error := Save(fate)
-	if error ==nil {
+	if error == nil {
 		t.Log("uuid: ", clusterUuid)
 		clusterJustAddedUuid = clusterUuid
 	}
 }
 
 func TestFindFateCluster(t *testing.T) {
+	InitConfigForTest()
 	fate := &FateCluster{}
 	results, error := Find(fate)
 	if error == nil {
@@ -24,6 +29,7 @@ func TestFindFateCluster(t *testing.T) {
 }
 
 func TestFindFateClusterByUuid(t *testing.T) {
+	InitConfigForTest()
 	t.Log("Find cluster just add: " + clusterJustAddedUuid)
 	fate := &FateCluster{}
 	result, error := FindByUUID(fate, clusterJustAddedUuid)
@@ -34,6 +40,7 @@ func TestFindFateClusterByUuid(t *testing.T) {
 }
 
 func TestUpdateCluster(t *testing.T) {
+	InitConfigForTest()
 	t.Log("Update: " + clusterJustAddedUuid)
 	fate := &FateCluster{}
 	result, error := FindByUUID(fate, clusterJustAddedUuid)
@@ -41,10 +48,13 @@ func TestUpdateCluster(t *testing.T) {
 		fate2Update := result.(FateCluster)
 		fate2Update.Name = "fate-cluster2"
 		fate2Update.NameSpaces = "fate-nameSpaces"
-		fate2Update.PartyId = "party-2222"
 
 		helm := NewHelm("name2","value2","template2")
+		party := NewParties("10000","192.168.0.1","normal")
+		backend := NewComputingBackend("egg","1")
 		fate2Update.Chart = *helm
+		fate2Update.Backend = *backend
+		fate2Update.BootstrapParties = *party
 		UpdateByUUID(&fate2Update, clusterJustAddedUuid)
 	}
 
@@ -55,11 +65,13 @@ func TestUpdateCluster(t *testing.T) {
 }
 
 func TestDeleteClusterByUUID(t *testing.T) {
+	InitConfigForTest()
 	fate := &FateCluster{}
 	DeleteByUUID(fate, clusterJustAddedUuid)
 }
 
 func TestReturnMethods(t *testing.T) {
+	InitConfigForTest()
 	fate := &FateCluster{}
 	results, error := Find(fate)
 	if error == nil {
