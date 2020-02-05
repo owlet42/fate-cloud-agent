@@ -19,5 +19,8 @@ mongo:
   password: root
   database: KubeFate
 
+log:
+  level: debug
+
 # TODO
 # persistent layer

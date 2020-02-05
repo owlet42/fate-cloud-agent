@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"fate-cloud-agent/pkg/utility/config"
+	"fate-cloud-agent/pkg/utils/config"
 	"os"
 	"testing"
 	"time"

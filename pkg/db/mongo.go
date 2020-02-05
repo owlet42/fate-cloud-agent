@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -45,6 +45,7 @@ var kubeFateDB *kubeFATEDatabase = nil
 
 // NewKubeFATEDatabase returns a singleton kubeFATEDatabase struct
 func newKubeFATEDatabase() error {
+	log.Debug().Msg("Initial Mongo Client with url: " + viper.GetString("mongo.url"))
 
 	tmpDd := &kubeFATEDatabase{
 		mongoURL:      viper.GetString("mongo.url"),
@@ -137,11 +138,12 @@ func ConnectDb() (*mongo.Database, error) {
 		client, err := mongo.Connect(ctx, opts) // client
 
 		if err != nil {
-			log.Println(err)
+			log.Error().Msg(err.Error())
 			return nil, err
 		}
 
 		kubeFateDB.db = client.Database(kubeFateDB.mongoDatabase)
+		log.Debug().Msg("Successfully initialized Mongo client")
 
 		// reset update flag
 		if kubeFateDB.isUpdate() {

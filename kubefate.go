@@ -2,7 +2,8 @@ package main
 
 import (
 	"fate-cloud-agent/pkg/cli"
-	"fate-cloud-agent/pkg/utility/config"
+	"fate-cloud-agent/pkg/utils/config"
+	"fate-cloud-agent/pkg/utils/logging"
 	"fmt"
 	"os"
 )
@@ -12,6 +13,8 @@ func main() {
 		fmt.Errorf("Unable to read in configuration: %s", err)
 		os.Exit(1)
 	}
+
+	logging.InitLog()
 
 	cli.Run(os.Args)
 }
