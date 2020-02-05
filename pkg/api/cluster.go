@@ -35,7 +35,13 @@ func (_ *Cluster) createCluster(c *gin.Context) {
 	}
 	// todo do something
 
+	// create a job
 	job := new(job)
+
+	// do job
+
+	// return
+
 	c.JSON(200, gin.H{"msg": "createCluster success", "data": job})
 }
 
@@ -53,14 +59,22 @@ func (_ *Cluster) setCluster(c *gin.Context) {
 
 func (_ *Cluster) getCluster(c *gin.Context) {
 	clusterId := c.Param("clusterId")
-
-	fate := &db.FateCluster{}
-	result, error := db.FindByUUID(fate, clusterId)
-	if error != nil {
-		c.JSON(400, gin.H{"msg": error})
+	if clusterId == "" {
+		c.JSON(400, gin.H{"msg": "err"})
+	}
+	result, err := getClusterFindByUUID(clusterId)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": err})
 	}
 
-	c.JSON(200, gin.H{"data": result.(db.FateCluster)})
+	c.JSON(200, gin.H{"data": result})
+}
+
+func getClusterFindByUUID(uuid string) (*db.FateCluster, error) {
+	fate := new(db.FateCluster)
+	result, err := db.FindByUUID(fate, uuid)
+	fate = result.(*db.FateCluster)
+	return fate, err
 
 }
 
@@ -68,9 +82,9 @@ func (_ *Cluster) getClusterList(c *gin.Context) {
 
 	clusterList := make([]cluster, 0)
 	fate := &db.FateCluster{}
-	result, error := db.Find(fate)
-	if error != nil {
-		c.JSON(400, gin.H{"msg": error})
+	result, err := db.Find(fate)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": err})
 	}
 
 	for _, r := range result {
@@ -82,11 +96,13 @@ func (_ *Cluster) getClusterList(c *gin.Context) {
 
 func (_ *Cluster) deleteCluster(c *gin.Context) {
 	clusterId := c.Param("clusterId")
-
+	if clusterId == "" {
+		c.JSON(400, gin.H{"msg": "err"})
+	}
 	fate := &db.FateCluster{}
-	_, error := db.DeleteByUUID(fate, clusterId)
-	if error != nil {
-		c.JSON(400, gin.H{"msg": error})
+	_, err := db.DeleteByUUID(fate, clusterId)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": err})
 	}
 
 	c.JSON(200, gin.H{"msg": "deleteCluster success"})
