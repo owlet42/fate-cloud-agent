@@ -37,13 +37,14 @@ func TestUpdateStatusByUUID(t *testing.T) {
 	t.Log("Update: " + jobJustAddedUuid)
 	job := &Job{}
 	result, error := FindByUUID(job, jobJustAddedUuid)
-	t.Log(ToJson(result))
 	if error == nil {
 		job2Update := result.(Job)
-		job2Update.Status = "success"
+		job2Update.Status = Success_j
 		job2Update.EndTime = time.Now().String()
 		UpdateByUUID(&job2Update, jobJustAddedUuid)
 	}
+	result, error = FindByUUID(job, jobJustAddedUuid)
+	t.Log(ToJson(result))
 }
 
 func TestDeleteJobByUUID(t *testing.T) {

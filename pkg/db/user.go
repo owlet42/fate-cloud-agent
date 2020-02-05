@@ -3,6 +3,7 @@ package db
 import (
 	"go.mongodb.org/mongo-driver/bson"
 	"github.com/satori/go.uuid"
+	"bytes"
 )
 
 type User struct {
@@ -16,9 +17,25 @@ type User struct {
 type UserStatus int
 
 const (
-	Deprecate UserStatus = iota
-	Available
+	Deprecate_u UserStatus = iota
+	Available_u
 )
+
+func (s UserStatus) String() string {
+	names := []string{
+        "Deprecate",
+        "Available",
+	}
+
+	return names[s]
+}
+
+func (s UserStatus) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(s.String())
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
 
 func NewUser (username string, password string, email string) *User {
 	u := &User{
@@ -26,7 +43,7 @@ func NewUser (username string, password string, email string) *User {
 		Username: username,
 		Password: password,
 		Email: email,
-		Status: Deprecate,
+		Status: Deprecate_u,
 	}
 
 	return u

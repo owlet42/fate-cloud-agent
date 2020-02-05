@@ -2,6 +2,7 @@ package db
 import (
 	"go.mongodb.org/mongo-driver/bson"
 	"github.com/satori/go.uuid"
+	"bytes"
 )
 
 type FateCluster struct {
@@ -18,12 +19,31 @@ type FateCluster struct {
 type ClusterStatus int
 
 const (
-	Creating ClusterStatus = iota
-	Deleting
-	Updating
-	Running
-	Unavailable
+	Creating_c ClusterStatus = iota
+	Deleting_c
+	Updating_c
+	Available_c
+	Unavailable_c
 )
+
+func (s ClusterStatus) String() string {
+	names := []string{
+        "Creating",
+        "Deleting",
+        "Updating",
+        "Running",
+		"Unavailable",
+	}
+
+	return names[s]
+}
+
+func (s ClusterStatus) MarshalJSON() ([]byte, error) {
+	buffer := bytes.NewBufferString(`"`)
+	buffer.WriteString(s.String())
+	buffer.WriteString(`"`)
+	return buffer.Bytes(), nil
+}
 
 func NewFateCluster(name string, nameSpaces string, version string, chart HelmChart, backend ComputingBackend, party Party) *FateCluster {
 	fateCluster := &FateCluster{
@@ -32,7 +52,7 @@ func NewFateCluster(name string, nameSpaces string, version string, chart HelmCh
 		NameSpaces: nameSpaces,
 		Version: version,
 		Chart: chart,
-		Status: Creating,
+		Status: Creating_c,
 		Backend: backend,
 		BootstrapParties: party,
 	}
