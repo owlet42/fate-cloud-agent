@@ -10,8 +10,7 @@ import (
 
 func main() {
 	if err := config.InitConfig(); err != nil {
-		fmt.Errorf("Unable to read in configuration: %s", err)
-		os.Exit(1)
+		panic(fmt.Errorf("Unable to read in configuration: %s", err))
 	}
 
 	logging.InitLog()
