@@ -39,6 +39,6 @@ func InitLog() {
 		},
 	)
 
-	log.Logger = log.Logger.With().Caller().Logger()
+	log.Logger = log.With().Caller().Logger()
 
 }
