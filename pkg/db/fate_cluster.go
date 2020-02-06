@@ -1,8 +1,9 @@
 package db
+
 import (
-	"go.mongodb.org/mongo-driver/bson"
-	"github.com/satori/go.uuid"
 	"bytes"
+	"github.com/satori/go.uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type FateCluster struct {
@@ -28,10 +29,10 @@ const (
 
 func (s ClusterStatus) String() string {
 	names := []string{
-        "Creating",
-        "Deleting",
-        "Updating",
-        "Running",
+		"Creating",
+		"Deleting",
+		"Updating",
+		"Running",
 		"Unavailable",
 	}
 
@@ -47,17 +48,37 @@ func (s ClusterStatus) MarshalJSON() ([]byte, error) {
 
 func NewFateCluster(name string, nameSpaces string, version string, chart HelmChart, backend ComputingBackend, party Party) *FateCluster {
 	fateCluster := &FateCluster{
-		Uuid: uuid.NewV4().String(),
-		Name: name,
-		NameSpaces: nameSpaces,
-		Version: version,
-		Chart: chart,
-		Status: Creating_c,
-		Backend: backend,
+		Uuid:             uuid.NewV4().String(),
+		Name:             name,
+		NameSpaces:       nameSpaces,
+		Version:          version,
+		Chart:            chart,
+		Status:           Creating_c,
+		Backend:          backend,
 		BootstrapParties: party,
 	}
 
 	return fateCluster
+}
+func FindFateClusterFindByUUID(uuid string) (*FateCluster, error) {
+	result, err := FindByUUID(new(FateCluster), uuid)
+	fc := result.(FateCluster)
+	return &fc, err
+}
+func FindFateClusterList(args string) ([]*FateCluster, error) {
+
+	fate := &FateCluster{}
+	result, err := Find(fate)
+	if err != nil {
+		return nil, err
+	}
+
+	clusterList := make([]*FateCluster, 0)
+	for _, r := range result {
+		cluster := r.(FateCluster)
+		clusterList = append(clusterList, &cluster)
+	}
+	return clusterList, nil
 }
 
 func (fate *FateCluster) getCollection() string {
@@ -68,7 +89,7 @@ func (fate *FateCluster) GetUuid() string {
 	return fate.Uuid
 }
 
-func (fate *FateCluster) FromBson(m *bson.M) interface{}{
+func (fate *FateCluster) FromBson(m *bson.M) interface{} {
 	bsonBytes, _ := bson.Marshal(m)
 	bson.Unmarshal(bsonBytes, fate)
 	return *fate

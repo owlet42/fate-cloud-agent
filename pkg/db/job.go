@@ -1,25 +1,36 @@
 package db
+
 import (
-	"go.mongodb.org/mongo-driver/bson"
-	"github.com/satori/go.uuid"
-	"time"
 	"bytes"
+	"github.com/satori/go.uuid"
+	"go.mongodb.org/mongo-driver/bson"
+	"time"
 )
 
 type Job struct {
-	Uuid       string    `json:"uuid"`
-	StartTime  string    `json:"start_time"`
-	EndTime    string    `json:"end_time"`
-	Method     string    `json:"method"`
-	Creator    string    `json:"creator"`
-	SubJobs    []string  `json:"sub-jobs"`
-	Status     JobStatus `json:"status"`
+	Uuid      string    `json:"uuid"`
+	StartTime string    `json:"start_time"`
+	EndTime   string    `json:"end_time"`
+	Method    string    `json:"method"`
+	Result    string    `json:"result"`
+	ClusterId string    `json:"cluster_id"`
+	Creator   string    `json:"creator"`
+	SubJobs   []string  `json:"sub-jobs"`
+	Status    JobStatus `json:"status"`
 }
+type Method uint32
+
+const (
+	INSTALL Method = 1 + iota
+	UNINSTALL
+	UPGRADE
+	EXEC
+)
 
 type JobStatus int
 
 const (
-	Running_j JobStatus=iota
+	Running_j JobStatus = iota
 	Success_j
 	Failed_j
 	Retry_j
@@ -29,10 +40,10 @@ const (
 
 func (s JobStatus) String() string {
 	names := []string{
-        "Running",
-        "Success",
+		"Running",
+		"Success",
 		"Failed",
-        "Retry",
+		"Retry",
 		"Timeout",
 		"Canceled",
 	}
@@ -50,11 +61,11 @@ func (s JobStatus) MarshalJSON() ([]byte, error) {
 func NewJob(method string, creator string) *Job {
 
 	job := &Job{
-		Uuid: uuid.NewV4().String(),
-		Method: method,
-		Creator: creator,
+		Uuid:      uuid.NewV4().String(),
+		Method:    method,
+		Creator:   creator,
 		StartTime: time.Now().String(),
-		Status: Running_j,
+		Status:    Running_j,
 	}
 
 	return job
@@ -68,7 +79,7 @@ func (job *Job) GetUuid() string {
 	return job.Uuid
 }
 
-func (job *Job) FromBson(m *bson.M) interface{}{
+func (job *Job) FromBson(m *bson.M) interface{} {
 	bsonBytes, _ := bson.Marshal(m)
 	bson.Unmarshal(bsonBytes, job)
 

@@ -11,10 +11,6 @@ import (
 func Run() {
 	r := gin.Default()
 	Router(r)
-	//r.GET("/deploy", Deploy)
-	//r.GET("/get", Get)
-	//r.GET("/list", List)
-	//r.GET("/delete", Delete)
 
 	address := viper.GetString("server.address")
 	port := viper.GetString("server.port")

@@ -16,7 +16,7 @@ import (
 	"strconv"
 )
 
-func Install(namespace, name, chartPath string) (*releaseElement, error) {
+func Install(namespace, name, version string) (*releaseElement, error) {
 
 	ENV_CS.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
@@ -33,6 +33,8 @@ func Install(namespace, name, chartPath string) (*releaseElement, error) {
 	if err := cfg.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), debug); err != nil {
 		return nil, err
 	}
+
+	chartPath := GetChartPath(version)
 
 	rel, err := runInstall(name, chartPath, client, valueOpts, os.Stdout, settings)
 	if err != nil {
