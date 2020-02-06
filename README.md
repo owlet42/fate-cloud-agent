@@ -2,7 +2,7 @@
 
 start service
 ```bash
-$ go run kubefate.go
+$ go run kubefate.go service
 ```
 
 deploy

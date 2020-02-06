@@ -2,12 +2,12 @@ package api
 
 import (
 	"fate-cloud-agent/pkg/db"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-type User struct {
-}
+type User db.User
 
 func (u *User) Router(r *gin.RouterGroup) {
 
@@ -31,6 +31,7 @@ func (_ *User) createUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	user = db.NewUser(user.Username, user.Password, user.Email)
 
 	uuid, err := db.Save(user)
 	if err != nil {
@@ -59,7 +60,7 @@ func (_ *User) setUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	user.Uuid = userId
 	err := db.UpdateByUUID(user, userId)
 	if err != nil {
 		c.JSON(400, gin.H{"msg": err})
@@ -79,13 +80,11 @@ func (_ *User) getUser(c *gin.Context) {
 	c.JSON(200, gin.H{"data": result})
 }
 
-func getUserFindByUUID(uuid string) (*db.User, error) {
+func getUserFindByUUID(uuid string) (interface{}, error) {
 	user := new(db.User)
 	result, err := db.FindByUUID(user, uuid)
-	user = result.(*db.User)
-	return user, err
+	return result, err
 }
-
 
 func (_ *User) deleteUser(c *gin.Context) {
 	userId := c.Param("userId")
