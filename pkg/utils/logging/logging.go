@@ -33,12 +33,14 @@ func InitLog() {
 
 	log.Logger = log.Output(
 		zerolog.ConsoleWriter{
+			// TODO(JHC):
+			// 1. output device should read from config file
 			Out:        os.Stderr,
 			NoColor:    false,
 			TimeFormat: time.RFC3339,
 		},
 	)
 
-	log.Logger = log.With().Caller().Logger()
+	log.Logger = log.With().Caller().CallerWithSkipFrameCount(2).Logger()
 
 }
