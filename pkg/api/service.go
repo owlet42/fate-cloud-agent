@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
@@ -31,7 +32,10 @@ func Run() {
 	port := viper.GetString("server.port")
 	endpoint := fmt.Sprintf("%s:%s", address, port)
 
-	log.Debug().Msg("Listening and serving HTTP on " + address + ":" + port)
+	// It is weird that release mode won't output serving info
+	if os.Getenv("GIN_MODE") == "release" {
+		log.Info().Msg("Listening and serving HTTP on " + address + ":" + port)
+	}
 
 	_ = r.Run(endpoint)
 }
