@@ -4,8 +4,9 @@ import (
 	"fate-cloud-agent/pkg/db"
 	"fate-cloud-agent/pkg/job"
 	"fate-cloud-agent/pkg/service"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Cluster struct {
@@ -14,7 +15,9 @@ type Cluster struct {
 // Router is cluster router definition method
 func (c *Cluster) Router(r *gin.RouterGroup) {
 
+	authMiddleware, _ := GetAuthMiddleware()
 	cluster := r.Group("/cluster")
+	cluster.Use(authMiddleware.MiddlewareFunc())
 	{
 		cluster.POST("", c.createCluster)
 		cluster.PUT("", c.setCluster)
@@ -94,4 +97,3 @@ func (_ *Cluster) deleteCluster(c *gin.Context) {
 
 	c.JSON(200, gin.H{"msg": "deleteCluster success", "data": j})
 }
-

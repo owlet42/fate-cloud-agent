@@ -23,6 +23,15 @@ func TestFindUsers(t *testing.T) {
 	t.Log(ToJson(results))
 }
 
+func TestIsValid(t *testing.T) {
+	InitConfigForTest()
+	u := NewUser("Layne", "test", "email@vmware.com")
+	result := u.IsValid()
+	if result {
+		t.Log("User Layne exists.")
+	}
+}
+
 func TestFindByUUID(t *testing.T) {
 	InitConfigForTest()
 	user := &User{}

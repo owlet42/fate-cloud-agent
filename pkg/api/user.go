@@ -7,30 +7,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// User model
 type User db.User
 
+// Router is user router definition method
 func (u *User) Router(r *gin.RouterGroup) {
-
+	authMiddleware, _ := GetAuthMiddleware()
 	user := r.Group("/user")
 	{
-		user.POST("", u.createUser)
-		user.POST("/login", u.login)
-		user.POST("/logout", u.logout)
-		user.PUT("/:userId", u.setUser)
-		user.GET("/:userId", u.getUser)
-		user.DELETE("/:userId", u.deleteUser)
+		user.POST("/login", authMiddleware.LoginHandler)
+		user.POST("/logout", authMiddleware.LogoutHandler)
 
 		//user.GET("/findByName",u.findUser)
 		//user.GET("/findByStatus",u.findUser)
 	}
+	user.Use(authMiddleware.MiddlewareFunc())
+	{
+		user.POST("", u.createUser)
+		user.PUT("/:userId", u.setUser)
+		user.DELETE("/:userId", u.deleteUser)
+	}
 }
 
-func (_ *User) createUser(c *gin.Context) {
+func (*User) createUser(c *gin.Context) {
 	user := new(db.User)
 	if err := c.ShouldBindJSON(user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// Use db.Newuser method to generate uuid
 	user = db.NewUser(user.Username, user.Password, user.Email)
 
 	uuid, err := db.Save(user)
@@ -43,17 +48,7 @@ func (_ *User) createUser(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "createCluster success", "data": user})
 }
 
-func (_ *User) login(c *gin.Context) {
-
-	c.JSON(200, gin.H{"msg": "login success"})
-}
-
-func (_ *User) logout(c *gin.Context) {
-
-	c.JSON(200, gin.H{"msg": "logout success"})
-}
-
-func (_ *User) setUser(c *gin.Context) {
+func (*User) setUser(c *gin.Context) {
 	userId := c.Param("userId")
 	user := new(db.User)
 	if err := c.ShouldBindJSON(user); err != nil {
@@ -68,7 +63,7 @@ func (_ *User) setUser(c *gin.Context) {
 
 	c.JSON(200, gin.H{"msg": "setUser success"})
 }
-func (_ *User) getUser(c *gin.Context) {
+func (*User) getUser(c *gin.Context) {
 	userId := c.Param("userId")
 	if userId == "" {
 		c.JSON(400, gin.H{"msg": "err"})
@@ -86,7 +81,7 @@ func getUserFindByUUID(uuid string) (interface{}, error) {
 	return result, err
 }
 
-func (_ *User) deleteUser(c *gin.Context) {
+func (*User) deleteUser(c *gin.Context) {
 	userId := c.Param("userId")
 	if userId == "" {
 		c.JSON(400, gin.H{"msg": "err"})
@@ -100,6 +95,6 @@ func (_ *User) deleteUser(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "deleteUser success"})
 }
 
-func (_ *User) findUser(c *gin.Context) {
+func (*User) findUser(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "findUser success"})
 }

@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/DataDog/zstd v1.4.4 // indirect
 	github.com/Masterminds/sprig/v3 v3.0.2
+	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/gin-contrib/logger v0.0.2
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-playground/universal-translator v0.17.0 // indirect
@@ -18,7 +19,6 @@ require (
 	github.com/rs/zerolog v1.17.2
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.3.2
-	github.com/tidwall/pretty v1.0.0 // indirect
 	github.com/urfave/cli/v2 v2.1.1
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect
 	github.com/xdg/stringprep v1.0.0 // indirect

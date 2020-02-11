@@ -2,6 +2,7 @@ package api
 
 import (
 	"fate-cloud-agent/pkg/db"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,7 +11,9 @@ type Job struct {
 
 func (j *Job) Router(r *gin.RouterGroup) {
 
+	authMiddleware, _ := GetAuthMiddleware()
 	job := r.Group("/job")
+	job.Use(authMiddleware.MiddlewareFunc())
 	{
 		job.GET("/", j.getJobList)
 		job.GET("/:jobId", j.getJob)

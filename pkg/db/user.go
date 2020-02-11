@@ -1,15 +1,16 @@
 package db
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
-	"github.com/satori/go.uuid"
 	"bytes"
+
+	uuid "github.com/satori/go.uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type User struct {
 	Uuid     string     `json:"uuid"`
-	Username string     `json:"username"` 
-	Password string     `json:"password"` 
+	Username string     `json:"username"`
+	Password string     `json:"password"`
 	Email    string     `json:"email"`
 	Status   UserStatus `json:"userStatus"`
 }
@@ -23,8 +24,8 @@ const (
 
 func (s UserStatus) String() string {
 	names := []string{
-        "Deprecate",
-        "Available",
+		"Deprecate",
+		"Available",
 	}
 
 	return names[s]
@@ -37,13 +38,13 @@ func (s UserStatus) MarshalJSON() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-func NewUser (username string, password string, email string) *User {
+func NewUser(username string, password string, email string) *User {
 	u := &User{
-		Uuid: uuid.NewV4().String(),
+		Uuid:     uuid.NewV4().String(),
 		Username: username,
 		Password: password,
-		Email: email,
-		Status: Deprecate_u,
+		Email:    email,
+		Status:   Deprecate_u,
 	}
 
 	return u
@@ -57,9 +58,18 @@ func (user *User) GetUuid() string {
 	return user.Uuid
 }
 
-func (user *User) FromBson(m *bson.M) interface{}{
+func (user *User) FromBson(m *bson.M) interface{} {
 	bsonBytes, _ := bson.Marshal(m)
 	bson.Unmarshal(bsonBytes, user)
 
 	return *user
+}
+
+func (user *User) IsValid() bool {
+	filter := bson.M{"username": user.Username, "password": user.Password}
+	users, err := FindByFilter(user, filter)
+	if err != nil || len(users) == 0 {
+		return false
+	}
+	return true
 }
