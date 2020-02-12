@@ -1,13 +1,15 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/cli/values"
 	"helm.sh/helm/v3/pkg/downloader"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/release"
@@ -16,7 +18,9 @@ import (
 	"strconv"
 )
 
-func Install(namespace, name, version string) (*releaseElement, error) {
+// install is create a cluster
+// value is a json ,
+func Install(namespace, name, version, value string) (*releaseElement, error) {
 
 	ENV_CS.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
@@ -28,7 +32,6 @@ func Install(namespace, name, version string) (*releaseElement, error) {
 
 	cfg := new(action.Configuration)
 	client := action.NewInstall(cfg)
-	valueOpts := &values.Options{}
 
 	if err := cfg.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), debug); err != nil {
 		return nil, err
@@ -36,7 +39,18 @@ func Install(namespace, name, version string) (*releaseElement, error) {
 
 	chartPath := GetChartPath(version)
 
-	rel, err := runInstall(name, chartPath, client, valueOpts, os.Stdout, settings)
+	template := GetChartValuesTemplates(chartPath)
+
+	// template to values
+	v := make(map[string]interface{})
+	err = json.Unmarshal([]byte(value), &v)
+	values, err := MapToConfig(v, template)
+
+	// values to map
+	vals := make(map[string]interface{})
+	err = yaml.Unmarshal([]byte(values), &vals)
+
+	rel, err := runInstall(name, chartPath, client, vals, os.Stdout, settings)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +76,7 @@ func newReleaseWriter(releases *release.Release) *releaseElement {
 	element.Updated = t
 	return element
 }
-func runInstall(name, chartPath string, client *action.Install, valueOpts *values.Options, out io.Writer, settings *cli.EnvSettings) (*release.Release, error) {
+func runInstall(name, chartPath string, client *action.Install, vals map[string]interface{}, out io.Writer, settings *cli.EnvSettings) (*release.Release, error) {
 	debug("Original chartPath version: %q", client.Version)
 	if client.Version == "" && client.Devel {
 		debug("setting version to >0.0.0-0")
@@ -77,12 +91,6 @@ func runInstall(name, chartPath string, client *action.Install, valueOpts *value
 	}
 
 	debug("CHART PATH: %s\n", cp)
-
-	p := getter.All(settings)
-	vals, err := valueOpts.MergeValues(p)
-	if err != nil {
-		return nil, err
-	}
 
 	// Check chartPath dependencies to make sure all are present in /charts
 	chartRequested, err := loader.Load(cp)
@@ -111,7 +119,7 @@ func runInstall(name, chartPath string, client *action.Install, valueOpts *value
 					ChartPath:        cp,
 					Keyring:          client.ChartPathOptions.Keyring,
 					SkipUpdate:       false,
-					Getters:          p,
+					Getters:          getter.All(settings),
 					RepositoryConfig: settings.RepositoryConfig,
 					RepositoryCache:  settings.RepositoryCache,
 				}

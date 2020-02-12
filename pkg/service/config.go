@@ -4,30 +4,46 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/Masterminds/sprig/v3"
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 	"text/template"
 )
 
+func MapToConfig(m map[string]interface{}, templates string) (string, error) {
+	// Create a new template and parse the letter into it.
+	t := template.Must(template.New("fate-values-templates").Funcs(funcMap()).Option("missingkey=zero").Parse(string(templates)))
+
+	// Execute the template for each recipient.
+
+	var buf strings.Builder
+	err := t.Execute(&buf, m)
+	if err != nil {
+		log.Error().Msg("executing template:" + err.Error())
+		return "", err
+	}
+	s := strings.ReplaceAll(buf.String(), "<no value>", "")
+	return s, nil
+
+}
 func Config() error {
 
 	values, err := ioutil.ReadFile("E:/machenlong/AI/gitlab/fate-cloud-agent/values.yaml")
 	if err != nil {
-		log.Fatalln(err)
+		log.Error().Msg(err.Error())
 	}
 
 	config, err := ioutil.ReadFile("E:/machenlong/AI/gitlab/fate-cloud-agent/config.yaml")
 	if err != nil {
-		log.Fatalln(err)
+		log.Error().Msg(err.Error())
 	}
 	m := make(map[interface{}]interface{})
 
 	err = yaml.Unmarshal(config, &m)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		log.Error().Msg(err.Error())
 	}
 
 	// Create a new template and parse the letter into it.
@@ -48,13 +64,13 @@ func Config() error {
 		var buf strings.Builder
 		err = t.Execute(&buf, f)
 		if err != nil {
-			log.Println("executing template:", err)
+			log.Error().Msg("executing template:" + err.Error())
 		}
 		s := strings.ReplaceAll(buf.String(), "<no value>", "")
 		_, _ = writer.WriteString(s)
 		err = writer.Flush()
 		if err != nil {
-			log.Println("executing template:", err)
+			log.Error().Msg("executing template:" + err.Error())
 		}
 	}
 	return nil

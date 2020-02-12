@@ -22,5 +22,8 @@ mongo:
 log:
   level: debug
 
+chart:
+  repository: "https://example.com/charts/" # chart url https://example.com/charts/fate-1.2.0.tgz
+
 # TODO
 # persistent layer

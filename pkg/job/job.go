@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func ClusterInstall(cluster *db.FateCluster) *db.Job {
+func ClusterInstall(cluster *db.FateCluster,values string) *db.Job {
 	job := db.NewJob("ClusterInstall", "")
 
 	// save job to db
@@ -18,7 +18,8 @@ func ClusterInstall(cluster *db.FateCluster) *db.Job {
 	job.Uuid = uuid
 
 	go func() {
-		err := install(cluster)
+
+		err := install(cluster,values)
 		job.Result = err.Error()
 		if err != nil {
 			job.Status = db.Failed_j
@@ -30,6 +31,12 @@ func ClusterInstall(cluster *db.FateCluster) *db.Job {
 		if err != nil {
 			log.Println(err)
 		}
+
+		// todo
+		//for {
+		//	//
+		//}
+
 	}()
 
 	return job
@@ -101,9 +108,9 @@ func ClusterDelete(clusterId string) *db.Job {
 	return job
 }
 
-func install(fc *db.FateCluster) error {
+func install(fc *db.FateCluster,values string) error {
 
-	_, err := service.Install(fc.NameSpaces, fc.Name, fc.Version)
+	_, err := service.Install(fc.NameSpaces, fc.Name, fc.Version,values)
 	if err != nil {
 		return err
 	}

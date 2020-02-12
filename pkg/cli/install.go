@@ -33,7 +33,7 @@ func installCommand() *cli.Command {
 
 func install(c *cli.Context) error {
 	fmt.Println(c.String("name"))
-	r, err := service.Install(c.String("namespace"), c.String("name"), c.String("chart"))
+	r, err := service.Install(c.String("namespace"), c.String("name"), c.String("chart"),"")
 	if err != nil {
 		fmt.Println(err)
 		return nil

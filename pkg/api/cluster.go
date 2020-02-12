@@ -1,9 +1,11 @@
 package api
 
 import (
+	"encoding/json"
 	"fate-cloud-agent/pkg/db"
 	"fate-cloud-agent/pkg/job"
 	"fate-cloud-agent/pkg/service"
+	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -46,8 +48,12 @@ func (_ *Cluster) createCluster(c *gin.Context) {
 	cluster := db.NewFateCluster(parameter.Name, parameter.Namespace, parameter.Version,
 		service.GetChart(parameter.Version), db.ComputingBackend{}, party)
 
+	bytes, err := json.Marshal(party)
+
+	log.Err(err).Msg("")
+
 	// create job and use goroutine do job result save to db
-	j := job.ClusterInstall(cluster)
+	j := job.ClusterInstall(cluster,string(bytes))
 
 	c.JSON(200, gin.H{"msg": "createCluster success", "data": j})
 }
@@ -82,9 +88,10 @@ func (_ *Cluster) getClusterList(c *gin.Context) {
 
 	clusterList, err := db.FindFateClusterList("")
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(400, gin.H{"msg": err.Error()})
+		return
 	}
-	c.JSON(200, gin.H{"msg": "deleteCluster success", "data": clusterList})
+	c.JSON(200, gin.H{"msg": "getClusterList success", "data": clusterList})
 }
 
 func (_ *Cluster) deleteCluster(c *gin.Context) {
