@@ -73,3 +73,12 @@ func (user *User) IsValid() bool {
 	}
 	return true
 }
+
+func (user *User) IsExisted() bool {
+	filter := bson.M{"username": user.Username}
+	users, err := FindByFilter(user, filter)
+	if err != nil || len(users) == 0 {
+		return false
+	}
+	return true
+}

@@ -24,6 +24,7 @@ func (u *User) Router(r *gin.RouterGroup) {
 	user.Use(authMiddleware.MiddlewareFunc())
 	{
 		user.POST("", u.createUser)
+		user.GET("/:userId", u.getUser)
 		user.PUT("/:userId", u.setUser)
 		user.DELETE("/:userId", u.deleteUser)
 	}
@@ -37,7 +38,10 @@ func (*User) createUser(c *gin.Context) {
 	}
 	// Use db.Newuser method to generate uuid
 	user = db.NewUser(user.Username, user.Password, user.Email)
-
+	if user.IsExisted() {
+		c.JSON(http.StatusBadRequest, gin.H{"error": USEREXISTED})
+		return
+	}
 	uuid, err := db.Save(user)
 	if err != nil {
 		c.JSON(400, gin.H{"msg": err})

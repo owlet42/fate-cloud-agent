@@ -23,6 +23,15 @@ func TestFindUsers(t *testing.T) {
 	t.Log(ToJson(results))
 }
 
+func TestIsExisted(t *testing.T) {
+	InitConfigForTest()
+	u := NewUser("Layne", "", "")
+	result := u.IsExisted()
+	if result {
+		t.Log("User Layne is valid.")
+	}
+}
+
 func TestIsValid(t *testing.T) {
 	InitConfigForTest()
 	u := NewUser("Layne", "test", "email@vmware.com")
