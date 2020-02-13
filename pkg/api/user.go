@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 )
 
 // User model
@@ -12,6 +14,7 @@ type User db.User
 
 // Router is user router definition method
 func (u *User) Router(r *gin.RouterGroup) {
+	generateAdminUser()
 	authMiddleware, _ := GetAuthMiddleware()
 	user := r.Group("/user")
 	{
@@ -27,6 +30,19 @@ func (u *User) Router(r *gin.RouterGroup) {
 		user.GET("/:userId", u.getUser)
 		user.PUT("/:userId", u.setUser)
 		user.DELETE("/:userId", u.deleteUser)
+	}
+}
+
+func generateAdminUser() {
+	username := viper.GetString("user.username")
+	password := viper.GetString("user.password")
+
+	u := db.NewUser(username, password, "")
+	if !u.IsExisted() {
+		uuid, err := db.Save(u)
+		if err != nil {
+			log.Debug().Msg("Generate user name: " + username + ", UUID: " + uuid)
+		}
 	}
 }
 
