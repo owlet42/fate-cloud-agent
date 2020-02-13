@@ -50,10 +50,12 @@ func (_ *Cluster) createCluster(c *gin.Context) {
 
 	bytes, err := json.Marshal(party)
 
-	log.Err(err).Msg("")
+	if err != nil {
+		log.Err(err).Msg("json Marshal party ")
+	}
 
 	// create job and use goroutine do job result save to db
-	j := job.ClusterInstall(cluster,string(bytes))
+	j := job.ClusterInstall(cluster, string(bytes))
 
 	c.JSON(200, gin.H{"msg": "createCluster success", "data": j})
 }

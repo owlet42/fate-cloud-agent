@@ -8,13 +8,13 @@ import (
 )
 
 func Get(namespace, name string) (*release.Release, error) {
-	ENV_CS.Lock()
+	EnvCs.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
 	if err != nil {
 		panic(err)
 	}
 	settings := cli.New()
-	ENV_CS.Unlock()
+	EnvCs.Unlock()
 
 	cfg := new(action.Configuration)
 	client := action.NewGet(cfg)

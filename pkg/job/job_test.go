@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 )
+
 func InitConfigForTest() {
 	config.InitViper()
 	viper.AddConfigPath("../../")
@@ -26,7 +27,6 @@ func TestClusterInstall(t *testing.T) {
 
 	// Sleep for a while
 	time.Sleep(2 * time.Second)
-
 
 	type args struct {
 		cluster *db.FateCluster

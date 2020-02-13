@@ -24,7 +24,7 @@ func TestConfig_DirExists(t *testing.T) {
 }
 
 func TestConfig_InitViper(t *testing.T) {
-	InitViper()
+	_ = InitViper()
 
 	viper.AddConfigPath("../../../")
 

@@ -8,9 +8,9 @@ import (
 
 func deleteCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "delete",
-		Usage:   "delete",
-		Action:  delete,
+		Name:   "delete",
+		Usage:  "delete",
+		Action: delete,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
@@ -21,7 +21,7 @@ func deleteCommand() *cli.Command {
 				Name:  "namespace",
 				Value: "",
 				Usage: "k8s Namespace",
-			},&cli.StringFlag{
+			}, &cli.StringFlag{
 				Name:  "chart",
 				Value: "",
 				Usage: "chart path",

@@ -9,7 +9,7 @@ func TestGetPod(t *testing.T) {
 		name string
 	}{
 		// TODO: Add test cases.
-		{name:"a"},
+		{name: "a"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -11,7 +11,7 @@ import (
 
 func listCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "list",
+		Name: "list",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
@@ -22,13 +22,13 @@ func listCommand() *cli.Command {
 				Name:  "namespace",
 				Value: "",
 				Usage: "k8s Namespace",
-			},&cli.StringFlag{
+			}, &cli.StringFlag{
 				Name:  "chart",
 				Value: "",
 				Usage: "chart path",
 			},
 		},
-		Usage:   "list",
+		Usage:  "list",
 		Action: list,
 	}
 }

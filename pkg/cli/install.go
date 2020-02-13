@@ -9,7 +9,7 @@ import (
 
 func installCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "install",
+		Name: "install",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
@@ -20,20 +20,20 @@ func installCommand() *cli.Command {
 				Name:  "namespace",
 				Value: "",
 				Usage: "k8s Namespace",
-			},&cli.StringFlag{
+			}, &cli.StringFlag{
 				Name:  "chart",
 				Value: "",
 				Usage: "chart path",
 			},
 		},
-		Usage:   "add a task to the list",
-		Action:  install,
+		Usage:  "add a task to the list",
+		Action: install,
 	}
 }
 
 func install(c *cli.Context) error {
 	fmt.Println(c.String("name"))
-	r, err := service.Install(c.String("namespace"), c.String("name"), c.String("chart"),"")
+	r, err := service.Install(c.String("namespace"), c.String("name"), c.String("chart"), nil)
 	if err != nil {
 		fmt.Println(err)
 		return nil

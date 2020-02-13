@@ -25,10 +25,11 @@ require (
 	go.mongodb.org/mongo-driver v1.2.0
 	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
-	gopkg.in/yaml.v2 v2.2.8
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	helm.sh/helm/v3 v3.0.2
 	k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8
 	k8s.io/client-go v0.0.0-20191016111102-bec269661e48
+	sigs.k8s.io/yaml v1.1.0
 )
 
 replace (

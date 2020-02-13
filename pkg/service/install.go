@@ -1,14 +1,11 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
-
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
+	"github.com/rs/zerolog/log"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
-	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/release"
 	"os"
@@ -17,15 +14,15 @@ import (
 
 // install is create a cluster
 // value is a json ,
-func Install(namespace, name, version, value string) (*releaseElement, error) {
+func Install(namespace, name, version string, value *Value) (*releaseElement, error) {
 
-	ENV_CS.Lock()
+	EnvCs.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
 	if err != nil {
 		panic(err)
 	}
 	settings := cli.New()
-	ENV_CS.Unlock()
+	EnvCs.Unlock()
 
 	cfg := new(action.Configuration)
 	client := action.NewInstall(cfg)
@@ -34,39 +31,42 @@ func Install(namespace, name, version, value string) (*releaseElement, error) {
 		return nil, err
 	}
 
-	chartPath := GetChartPath(version)
+	// get chart by version from repository
+	fc, err := GetFateChart(version)
+	if err != nil {
+		log.Err(err).Msg("GetFateChart err")
+		return nil, err
+	}
 
-	template := GetChartValuesTemplates(chartPath)
+	chartRequested, err := fc.ToHelmChart()
+	if err != nil {
+		log.Err(err).Msg("GetFateChart error")
+		return nil, err
+	}
 
 	// template to values
-	v := make(map[string]interface{})
-	err = json.Unmarshal([]byte(value), &v)
-	values, err := MapToConfig(v, template)
+	v, err := value.Unmarshal()
+	if err != nil {
+		log.Err(err).Msg("values yaml Unmarshal error")
+		return nil, err
+	}
+	log.Debug().Fields(v).Msg("temp values:")
 
 	// values to map
-	vals := make(map[string]interface{})
-	err = yaml.Unmarshal([]byte(values), &vals)
+	val, err := fc.GetChartValues(v)
 
+	if err != nil {
+		log.Err(err).Msg("values yaml Unmarshal error")
+		return nil, err
+	}
+	log.Debug().Fields(val).Msg("chart values: ")
 
-
-	cp, err := client.ChartPathOptions.LocateChart(chartPath, settings)
+	rel, err := runInstall(name, chartRequested, client, val, settings)
 	if err != nil {
 		return nil, err
 	}
 
-	debug("CHART PATH: %s\n", cp)
-
-	// Check chartPath dependencies to make sure all are present in /charts
-	chartRequested, err := loader.Load(cp)
-	if err != nil {
-		return nil, err
-	}
-
-
-	rel, err := runInstall(name, chartRequested, client, vals, settings)
-	if err != nil {
-		return nil, err
-	}
+	log.Debug().Interface("runInstall result", rel)
 
 	return newReleaseWriter(rel), nil
 }
@@ -98,15 +98,13 @@ func runInstall(name string, chartRequested *chart.Chart, client *action.Install
 
 	client.ReleaseName = name
 
-
-
 	validInstallableChart, err := isChartInstallable(chartRequested)
 	if !validInstallableChart {
 		return nil, err
 	}
 
 	if chartRequested.Metadata.Deprecated {
-		_, _ = fmt.Println( "WARNING: This chartPath is deprecated")
+		_, _ = fmt.Println("WARNING: This chartPath is deprecated")
 	}
 
 	client.Namespace = settings.Namespace()

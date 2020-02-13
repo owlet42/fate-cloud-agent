@@ -19,7 +19,7 @@ func initCommandLine() *cli.App {
 				Name:  "config",
 				Value: "",
 				Usage: "kube config",
-			},&cli.StringFlag{
+			}, &cli.StringFlag{
 				Name:  "chart",
 				Value: "",
 				Usage: "chart path",

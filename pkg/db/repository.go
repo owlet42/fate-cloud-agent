@@ -1,9 +1,9 @@
 package db
 
-import(
-	"go.mongodb.org/mongo-driver/bson"
-	"encoding/json"
+import (
 	"context"
+	"encoding/json"
+	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"time"
 )
@@ -16,16 +16,16 @@ type Repository interface {
 }
 
 // Save the object in the database
-func Save(repository Repository) (string, error){
+func Save(repository Repository) (string, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	db, _ := ConnectDb()
 	collection := db.Collection(repository.getCollection())
 	_, err := collection.InsertOne(ctx, repository)
 	if err != nil {
 		log.Println(err)
-		return "",err
+		return "", err
 	}
-	return repository.GetUuid(),nil
+	return repository.GetUuid(), nil
 }
 
 // Find find the objects from the database
@@ -104,12 +104,12 @@ func UpdateByUUID(repository Repository, uuid string) error {
 
 // ToDoc convert object to bson document
 func ToDoc(v interface{}) (doc *bson.D, err error) {
-    data, err := bson.Marshal(v)
-    if err != nil {
-        return
-    }
-    err = bson.Unmarshal(data, &doc)
-    return
+	data, err := bson.Marshal(v)
+	if err != nil {
+		return
+	}
+	err = bson.Unmarshal(data, &doc)
+	return
 }
 
 // ToJson convert object to json string
@@ -138,7 +138,7 @@ func DeleteByUUID(repository Repository, uuid string) (int64, error) {
 }
 
 // FindByFilter find objects from database via custom filter, such as: findByName, findByStatus
-func FindByFilter(repository Repository,filter bson.M) ([]interface{}, error) {
+func FindByFilter(repository Repository, filter bson.M) ([]interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	db, _ := ConnectDb()
 	collection := db.Collection(repository.getCollection())

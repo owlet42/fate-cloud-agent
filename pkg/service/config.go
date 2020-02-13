@@ -3,13 +3,14 @@ package service
 import (
 	"bufio"
 	"fmt"
-	"github.com/Masterminds/sprig/v3"
-	"github.com/rs/zerolog/log"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"strings"
 	"text/template"
+
+	"github.com/Masterminds/sprig/v3"
+	"github.com/rs/zerolog/log"
+	"sigs.k8s.io/yaml"
 )
 
 func MapToConfig(m map[string]interface{}, templates string) (string, error) {

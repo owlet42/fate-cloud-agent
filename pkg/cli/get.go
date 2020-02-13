@@ -9,9 +9,9 @@ import (
 
 func getCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "get",
-		Usage:   "get",
-		Action:  get,
+		Name:   "get",
+		Usage:  "get",
+		Action: get,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
@@ -22,7 +22,7 @@ func getCommand() *cli.Command {
 				Name:  "namespace",
 				Value: "",
 				Usage: "k8s Namespace",
-			},&cli.StringFlag{
+			}, &cli.StringFlag{
 				Name:  "chart",
 				Value: "",
 				Usage: "chart path",
@@ -37,12 +37,12 @@ func get(c *cli.Context) error {
 		fmt.Println(err)
 		return nil
 	}
-	_, _ = fmt.Printf( "NAME: %s\n", release.Name)
+	_, _ = fmt.Printf("NAME: %s\n", release.Name)
 	if !release.Info.LastDeployed.IsZero() {
-		fmt.Printf( "LAST DEPLOYED: %s\n", release.Info.LastDeployed.Format(time.ANSIC))
+		fmt.Printf("LAST DEPLOYED: %s\n", release.Info.LastDeployed.Format(time.ANSIC))
 	}
-	fmt.Printf( "NAMESPACE: %s\n", release.Namespace)
-	fmt.Printf( "STATUS: %s\n", release.Info.Status.String())
-	fmt.Printf( "REVISION: %d\n", release.Version)
-    return nil
+	fmt.Printf("NAMESPACE: %s\n", release.Namespace)
+	fmt.Printf("STATUS: %s\n", release.Info.Status.String())
+	fmt.Printf("REVISION: %d\n", release.Version)
+	return nil
 }

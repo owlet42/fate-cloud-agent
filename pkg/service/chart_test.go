@@ -1,6 +1,8 @@
 package service
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetChartValuesTemplates(t *testing.T) {
 	type args struct {
@@ -12,7 +14,7 @@ func TestGetChartValuesTemplates(t *testing.T) {
 		want string
 	}{
 		// TODO: Add test cases.
-		{name:"test",args:args{
+		{name: "test", args: args{
 			chartPath: "../../fate/",
 		}},
 	}

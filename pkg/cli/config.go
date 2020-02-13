@@ -7,9 +7,9 @@ import (
 
 func configCommand() *cli.Command {
 	return &cli.Command{
-		Name:    "config",
-		Usage:   "config",
-		Action:  config,
+		Name:   "config",
+		Usage:  "config",
+		Action: config,
 	}
 }
 

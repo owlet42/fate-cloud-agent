@@ -8,13 +8,13 @@ import (
 )
 
 func GetPod() {
-	//ENV_CS.Lock()
+	//EnvCs.Lock()
 	//err := os.Setenv("HELM_NAMESPACE", "")
 	//if err!=nil{
 	//	panic(err)
 	//}
 	//settings := cli.New()
-	//ENV_CS.Unlock()
+	//EnvCs.Unlock()
 	//
 	//cfg := new(action.Configuration)
 	////out := os.Stdout
@@ -25,7 +25,7 @@ func GetPod() {
 	//if err := cfg.KubeClient.IsReachable(); err != nil {
 	//	fmt.Println(err)
 	//}
-	configFlags:=kube.GetConfig("", "", "")
+	configFlags := kube.GetConfig("", "", "")
 	config, _ := configFlags.ToRESTConfig()
 	//config, _ := settings.RESTClientGetter().ToRESTConfig()
 

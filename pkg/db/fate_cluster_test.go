@@ -8,10 +8,10 @@ var clusterJustAddedUuid string
 
 func TestNewFateCluster(t *testing.T) {
 	InitConfigForTest()
-	helm := NewHelmChart("name","value","template")
-	party := NewParty("9999","192.168.0.1","normal")
-	backend := NewComputingBackend("egg","1")
-	fate := NewFateCluster("fate-cluster1","fate-nameSpaces","v1.2.0",*helm,*backend,*party)
+	helm := NewHelmChart("name", "value", "template")
+	party := NewParty("9999", "192.168.0.1", "normal")
+	backend := NewComputingBackend("egg", "1")
+	fate := NewFateCluster("fate-cluster1", "fate-nameSpaces", "v1.2.0", *helm, *backend, *party)
 	clusterUuid, error := Save(fate)
 	if error == nil {
 		t.Log("uuid: ", clusterUuid)
@@ -49,9 +49,9 @@ func TestUpdateCluster(t *testing.T) {
 		fate2Update.Name = "fate-cluster2"
 		fate2Update.NameSpaces = "fate-nameSpaces"
 
-		helm := NewHelmChart("name2","value2","template2")
-		party := NewParty("10000","192.168.0.1","normal")
-		backend := NewComputingBackend("egg","1")
+		helm := NewHelmChart("name2", "value2", "template2")
+		party := NewParty("10000", "192.168.0.1", "normal")
+		backend := NewComputingBackend("egg", "1")
 		fate2Update.Chart = *helm
 		fate2Update.Backend = *backend
 		fate2Update.BootstrapParties = *party

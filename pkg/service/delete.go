@@ -1,21 +1,22 @@
 package service
 
 import (
+	"github.com/rs/zerolog/log"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/release"
 	"os"
 )
 
-func Delete(namespace ,name string) (*release.UninstallReleaseResponse, error) {
+func Delete(namespace, name string) (*release.UninstallReleaseResponse, error) {
 
-	ENV_CS.Lock()
+	EnvCs.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
-	if err!=nil{
+	if err != nil {
 		panic(err)
 	}
 	settings := cli.New()
-	ENV_CS.Unlock()
+	EnvCs.Unlock()
 
 	cfg := new(action.Configuration)
 	client := action.NewUninstall(cfg)
@@ -28,6 +29,8 @@ func Delete(namespace ,name string) (*release.UninstallReleaseResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Debug().Interface("res", res).Msg("delete result")
 
 	return res, nil
 }

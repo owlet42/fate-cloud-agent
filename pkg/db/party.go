@@ -8,8 +8,8 @@ type Party struct {
 
 func NewParty(partyId string, endpoint string, partyType string) *Party {
 	party := &Party{
-		PartyId: partyId,
-		Endpoint: endpoint,
+		PartyId:   partyId,
+		Endpoint:  endpoint,
 		PartyType: partyType,
 	}
 
