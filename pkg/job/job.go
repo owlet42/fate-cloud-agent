@@ -11,11 +11,13 @@ func ClusterInstall(cluster *db.FateCluster,values string) *db.Job {
 	job := db.NewJob("ClusterInstall", "")
 
 	// save job to db
-	uuid, err := db.Save(job)
+	_, err := db.Save(job)
 	if err != nil {
 		log.Println(err)
 	}
-	job.Uuid = uuid
+
+	job.ClusterId = cluster.Uuid
+
 
 	go func() {
 
@@ -46,11 +48,11 @@ func ClusterUpdate(cluster *db.FateCluster) *db.Job {
 
 	job := db.NewJob("ClusterInstall", "")
 	// save job to db
-	uuid, err := db.Save(job)
+	_, err := db.Save(job)
 	if err != nil {
 		log.Println(err)
 	}
-	job.Uuid = uuid
+
 
 	go func() {
 		err := upgrade(cluster)
@@ -74,11 +76,11 @@ func ClusterDelete(clusterId string) *db.Job {
 
 	job := db.NewJob("ClusterDelete", "")
 	// save job to db
-	uuid, err := db.Save(job)
+	_, err := db.Save(job)
 	if err != nil {
 		log.Println(err)
 	}
-	job.Uuid = uuid
+
 
 	go func() {
 		cluster := new(db.FateCluster)

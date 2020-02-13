@@ -10,10 +10,7 @@ import (
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/downloader"
-	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/release"
-	"io"
 	"os"
 	"strconv"
 )
@@ -50,7 +47,23 @@ func Install(namespace, name, version, value string) (*releaseElement, error) {
 	vals := make(map[string]interface{})
 	err = yaml.Unmarshal([]byte(values), &vals)
 
-	rel, err := runInstall(name, chartPath, client, vals, os.Stdout, settings)
+
+
+	cp, err := client.ChartPathOptions.LocateChart(chartPath, settings)
+	if err != nil {
+		return nil, err
+	}
+
+	debug("CHART PATH: %s\n", cp)
+
+	// Check chartPath dependencies to make sure all are present in /charts
+	chartRequested, err := loader.Load(cp)
+	if err != nil {
+		return nil, err
+	}
+
+
+	rel, err := runInstall(name, chartRequested, client, vals, settings)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +89,7 @@ func newReleaseWriter(releases *release.Release) *releaseElement {
 	element.Updated = t
 	return element
 }
-func runInstall(name, chartPath string, client *action.Install, vals map[string]interface{}, out io.Writer, settings *cli.EnvSettings) (*release.Release, error) {
+func runInstall(name string, chartRequested *chart.Chart, client *action.Install, vals map[string]interface{}, settings *cli.EnvSettings) (*release.Release, error) {
 	debug("Original chartPath version: %q", client.Version)
 	if client.Version == "" && client.Devel {
 		debug("setting version to >0.0.0-0")
@@ -85,18 +98,7 @@ func runInstall(name, chartPath string, client *action.Install, vals map[string]
 
 	client.ReleaseName = name
 
-	cp, err := client.ChartPathOptions.LocateChart(chartPath, settings)
-	if err != nil {
-		return nil, err
-	}
 
-	debug("CHART PATH: %s\n", cp)
-
-	// Check chartPath dependencies to make sure all are present in /charts
-	chartRequested, err := loader.Load(cp)
-	if err != nil {
-		return nil, err
-	}
 
 	validInstallableChart, err := isChartInstallable(chartRequested)
 	if !validInstallableChart {
@@ -104,32 +106,7 @@ func runInstall(name, chartPath string, client *action.Install, vals map[string]
 	}
 
 	if chartRequested.Metadata.Deprecated {
-		_, _ = fmt.Fprintln(out, "WARNING: This chartPath is deprecated")
-	}
-
-	if req := chartRequested.Metadata.Dependencies; req != nil {
-		// If CheckDependencies returns an error, we have unfulfilled dependencies.
-		// As of Helm 2.4.0, this is treated as a stopping condition:
-		// https://github.com/helm/helm/issues/2209
-
-		if err := action.CheckDependencies(chartRequested, req); err != nil {
-			if client.DependencyUpdate {
-				man := &downloader.Manager{
-					Out:              out,
-					ChartPath:        cp,
-					Keyring:          client.ChartPathOptions.Keyring,
-					SkipUpdate:       false,
-					Getters:          getter.All(settings),
-					RepositoryConfig: settings.RepositoryConfig,
-					RepositoryCache:  settings.RepositoryCache,
-				}
-				if err := man.Update(); err != nil {
-					return nil, err
-				}
-			} else {
-				return nil, err
-			}
-		}
+		_, _ = fmt.Println( "WARNING: This chartPath is deprecated")
 	}
 
 	client.Namespace = settings.Namespace()
