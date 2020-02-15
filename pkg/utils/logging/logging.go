@@ -13,7 +13,7 @@ import (
 func InitLog() {
 	logLevel := viper.GetString("log.level")
 
-	log.Printf("logLevel: %v\n", logLevel)
+
 	switch logLevel {
 	case "debug":
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
@@ -44,4 +44,5 @@ func InitLog() {
 
 	log.Logger = log.With().Caller().CallerWithSkipFrameCount(2).Logger()
 
+	log.Info().Msgf("logLevel: %v", logLevel)
 }

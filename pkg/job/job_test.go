@@ -3,34 +3,28 @@ package job
 
 import (
 	"fate-cloud-agent/pkg/db"
-	"fate-cloud-agent/pkg/service"
 	"fate-cloud-agent/pkg/utils/config"
-	"github.com/spf13/viper"
+	"fate-cloud-agent/pkg/utils/logging"
 	"os"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 func InitConfigForTest() {
 	config.InitViper()
 	viper.AddConfigPath("../../")
 	viper.ReadInConfig()
+	logging.InitLog()
 }
+
+
 func TestClusterInstall(t *testing.T) {
-
 	InitConfigForTest()
-
-	// Log the constructed mongo url after env was changed
-	os.Setenv("FATECLOUD_MONGO_USERNAME", "test")
-	os.Setenv("FATECLOUD_MONGO_PASSWORD", "test")
-
-	// Sleep for a while
-	time.Sleep(2 * time.Second)
-
+	_ = os.Setenv("FATECLOUD_CHART_PATH", "../../")
 	type args struct {
-		cluster *db.FateCluster
-		values  string
+		clusterArgs *ClusterArgs
 	}
 	tests := []struct {
 		name string
@@ -39,23 +33,23 @@ func TestClusterInstall(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name: "create",
+			name: "test job",
 			args: args{
-				cluster: db.NewFateCluster("fate-10000", "fate-10000", "v1.2.0",
-					service.GetChart("v1.2.0"), db.ComputingBackend{}, db.Party{
-						PartyId:   "10000",
-						Endpoint:  "10.184.111.187:30000",
-						PartyType: "normal",
-					}),
-				values: string(""),
+				clusterArgs: &ClusterArgs{
+					Name:      "fate-8888",
+					Namespace: "fate-8888",
+					Version:   "v1.2.0",
+					Data:      []byte(`{ "partyId":10000,"endpoint": { "ip":"10.184.111.187","port":30000}}`),
+				},
 			},
+			want: nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ClusterInstall(tt.args.cluster, tt.args.values); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ClusterInstall() = %+v, want %+v", got, tt.want)
-			}
+			got := ClusterInstall(tt.args.clusterArgs)
+			t.Log("uuid", got.Uuid)
+			time.Sleep(30 * time.Second)
 		})
 	}
 }

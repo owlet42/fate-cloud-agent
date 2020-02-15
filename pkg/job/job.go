@@ -5,9 +5,18 @@ import (
 	"fate-cloud-agent/pkg/db"
 	"fate-cloud-agent/pkg/service"
 	"github.com/rs/zerolog/log"
+	"time"
 )
 
-func ClusterInstall(cluster *db.FateCluster, values string) *db.Job {
+type ClusterArgs struct {
+	Name      string
+	Namespace string
+	Version   string
+	Data      []byte
+}
+
+func ClusterInstall(clusterArgs *ClusterArgs) *db.Job {
+
 	job := db.NewJob("ClusterInstall", "")
 
 	// save job to db
@@ -16,21 +25,26 @@ func ClusterInstall(cluster *db.FateCluster, values string) *db.Job {
 		log.Err(err).Interface("job", job).Msg("save job error")
 	}
 
-	job.ClusterId = cluster.Uuid
-
 	log.Info().Str("jobId", job.Uuid).Msg("create a new job of ClusterInstall")
 
 	go func() {
 
-		err := install(cluster, values)
-		job.Result = err.Error()
+		//create a cluster use parameter
+		cluster := db.NewCluster(clusterArgs.Name, clusterArgs.Namespace, clusterArgs.Version,
+			db.ComputingBackend{}, db.Party{})
+		job.ClusterId = cluster.Uuid
+
+		err := install(cluster, clusterArgs.Data)
 		if err != nil {
+			job.Result = err.Error()
 			job.Status = db.Failed_j
 			log.Err(err).Str("ClusterId", cluster.Uuid).Msg("install cluster error")
 		} else {
+			job.Result = "install success"
 			job.Status = db.Success_j
 			log.Info().Str("ClusterId", cluster.Uuid).Msg("install cluster success")
 		}
+		job.EndTime = time.Now().String()
 		err = db.UpdateByUUID(job, job.Uuid)
 		if err != nil {
 			log.Err(err).Str("jobId", job.Uuid).Msg("update job By Uuid error")
@@ -40,13 +54,14 @@ func ClusterInstall(cluster *db.FateCluster, values string) *db.Job {
 		//for {
 		//	//
 		//}
-
+		//todo save cluster to db
+		log.Info().Str("jobUuid", job.Uuid).Msg("job run success")
 	}()
 
 	return job
 }
 
-func ClusterUpdate(cluster *db.FateCluster) *db.Job {
+func ClusterUpdate(cluster *db.Cluster) *db.Job {
 
 	job := db.NewJob("ClusterInstall", "")
 	// save job to db
@@ -84,7 +99,7 @@ func ClusterDelete(clusterId string) *db.Job {
 	}
 	log.Info().Str("jobId", job.Uuid).Msg("create a new job of ClusterDelete")
 	go func() {
-		cluster := new(db.FateCluster)
+		cluster := new(db.Cluster)
 		result, err := db.FindByUUID(cluster, clusterId)
 		if err != nil {
 			log.Err(err).Str("ClusterId", cluster.Uuid).Msg("Cluster does not exist")
@@ -97,7 +112,7 @@ func ClusterDelete(clusterId string) *db.Job {
 			return
 		}
 
-		err = uninstall(result.(*db.FateCluster))
+		err = uninstall(result.(*db.Cluster))
 		job.Result = err.Error()
 		if err != nil {
 			job.Status = db.Failed_j
@@ -115,7 +130,7 @@ func ClusterDelete(clusterId string) *db.Job {
 	return job
 }
 
-func install(fc *db.FateCluster, values string) error {
+func install(fc *db.Cluster, values []byte) error {
 	v := new(service.Value)
 	v.Val = values
 	v.T = "json"
@@ -128,13 +143,13 @@ func install(fc *db.FateCluster, values string) error {
 	return nil
 }
 
-func upgrade(fc *db.FateCluster) error {
+func upgrade(fc *db.Cluster) error {
 
 	err := service.Upgrade(fc.NameSpaces, fc.Name, fc.Version)
 	return err
 
 }
-func uninstall(fc *db.FateCluster) error {
+func uninstall(fc *db.Cluster) error {
 
 	_, err := service.Delete(fc.NameSpaces, fc.Name)
 

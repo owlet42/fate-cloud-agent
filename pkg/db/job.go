@@ -85,3 +85,19 @@ func (job *Job) FromBson(m *bson.M) interface{} {
 
 	return *job
 }
+//
+func FindJobList(args string) ([]*Job, error) {
+
+	job := &Job{}
+	result, err := Find(job)
+	if err != nil {
+		return nil, err
+	}
+
+	jobList := make([]*Job, 0)
+	for _, r := range result {
+		cluster := r.(Job)
+		jobList = append(jobList, &cluster)
+	}
+	return jobList, nil
+}

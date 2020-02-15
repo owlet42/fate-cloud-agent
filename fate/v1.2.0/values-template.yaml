@@ -6,9 +6,9 @@ image:
   isThridParty:
   tag: 1.2.0-release
   pullPolicy: IfNotPresent
-partyId: {{ .PartyId }}
+partyId: {{ .partyId }}
 host:
-  fateboard: {{ .PartyId }}.fateboard.fedai.org
+  fateboard: {{ .partyId }}.fateboard.fedai.org
 nodePort: 30010
 
 exchange:
@@ -24,7 +24,7 @@ redis:
 eggList:
   - egg: egg
     nodeLabel: fedai.org
-    value: 
+    value:
 nodeSelector:
   fateboard:
     nodeLabel: fedai.org

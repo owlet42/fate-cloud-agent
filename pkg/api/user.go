@@ -41,8 +41,10 @@ func generateAdminUser() {
 	if !u.IsExisted() {
 		uuid, err := db.Save(u)
 		if err != nil {
-			log.Debug().Msg("Generate user name: " + username + ", UUID: " + uuid)
+			log.Err(err).Str("userName",username).Msg("user save error")
+			return
 		}
+		log.Info().Str("userUuid",uuid).Str("userName",username).Msg("user  save success")
 	}
 }
 

@@ -22,18 +22,13 @@ func (j *Job) Router(r *gin.RouterGroup) {
 }
 
 func (_ *Job) getJobList(c *gin.Context) {
-	jobList := make([]Job, 0)
-	job := &db.Job{}
-	result, err := db.Find(job)
-	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
-	}
 
-	for _, r := range result {
-		job := r.(Job)
-		jobList = append(jobList, job)
+	jobList, err := db.FindJobList("")
+	if err != nil {
+		c.JSON(400, gin.H{"error": err})
+		return
 	}
-	c.JSON(200, gin.H{"msg": "getJobList success"})
+	c.JSON(200, gin.H{"data": jobList, "msg": "getJobList success"})
 }
 
 func (_ *Job) getJob(c *gin.Context) {
@@ -49,10 +44,10 @@ func (_ *Job) getJob(c *gin.Context) {
 }
 
 func getJobFindByUUID(uuid string) (*db.Job, error) {
-	job := new(db.Job)
-	result, err := db.FindByUUID(job, uuid)
-	job = result.(*db.Job)
-	return job, err
+	j := db.Job{}
+	result, err := db.FindByUUID(&j, uuid)
+	job := result.(db.Job)
+	return &job, err
 }
 
 func (_ *Job) deleteJob(c *gin.Context) {

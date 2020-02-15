@@ -37,14 +37,16 @@ func Install(namespace, name, version string, value *Value) (*releaseElement, er
 		log.Err(err).Msg("GetFateChart err")
 		return nil, err
 	}
+	log.Debug().Interface("FateChart",fc).Msg("GetFateChart success")
 
+	// fateChart to helmChart
 	chartRequested, err := fc.ToHelmChart()
 	if err != nil {
 		log.Err(err).Msg("GetFateChart error")
 		return nil, err
 	}
 
-	// template to values
+	// template to values map
 	v, err := value.Unmarshal()
 	if err != nil {
 		log.Err(err).Msg("values yaml Unmarshal error")
@@ -52,9 +54,8 @@ func Install(namespace, name, version string, value *Value) (*releaseElement, er
 	}
 	log.Debug().Fields(v).Msg("temp values:")
 
-	// values to map
+	// get values map
 	val, err := fc.GetChartValues(v)
-
 	if err != nil {
 		log.Err(err).Msg("values yaml Unmarshal error")
 		return nil, err
@@ -63,6 +64,7 @@ func Install(namespace, name, version string, value *Value) (*releaseElement, er
 
 	rel, err := runInstall(name, chartRequested, client, val, settings)
 	if err != nil {
+		log.Err(err).Msg("runInstall error")
 		return nil, err
 	}
 

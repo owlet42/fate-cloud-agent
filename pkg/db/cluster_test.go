@@ -6,7 +6,7 @@ import (
 
 var clusterJustAddedUuid string
 
-func TestNewFateCluster(t *testing.T) {
+func TestNewCluster(t *testing.T) {
 	InitConfigForTest()
 	party := NewParty("9999", "192.168.0.1", "normal")
 	backend := NewComputingBackend("egg", "1")
@@ -18,7 +18,7 @@ func TestNewFateCluster(t *testing.T) {
 	}
 }
 
-func TestFindFateCluster(t *testing.T) {
+func TestFindCluster(t *testing.T) {
 	InitConfigForTest()
 	fate := &Cluster{}
 	results, error := Find(fate)
@@ -27,7 +27,7 @@ func TestFindFateCluster(t *testing.T) {
 	}
 }
 
-func TestFindFateClusterByUuid(t *testing.T) {
+func TestFindClusterByUuid(t *testing.T) {
 	InitConfigForTest()
 	clusterJustAddedUuid = "f3a366f5-bf97-4be2-b49a-2137fe84a38b"
 	t.Log("Find cluster just add: " + clusterJustAddedUuid)
@@ -62,7 +62,7 @@ func TestUpdateCluster(t *testing.T) {
 	}
 }
 
-func TestDeleteClusterByUUID(t *testing.T) {
+func TestDeleteByUUID(t *testing.T) {
 	InitConfigForTest()
 	fate := &Cluster{}
 	DeleteByUUID(fate, clusterJustAddedUuid)

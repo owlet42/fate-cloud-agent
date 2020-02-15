@@ -48,8 +48,4 @@ func TestFindByUUID(t *testing.T) {
 	t.Log(ToJson(results))
 }
 
-func TestDeleteByUUID(t *testing.T) {
-	InitConfigForTest()
-	user := &User{}
-	DeleteByUUID(user, userJustAddedUuid)
-}
+

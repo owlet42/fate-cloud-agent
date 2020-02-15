@@ -4,6 +4,7 @@ import (
 	"fate-cloud-agent/pkg/utils/config"
 	"fate-cloud-agent/pkg/utils/logging"
 	"github.com/spf13/viper"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -14,7 +15,7 @@ func TestInstall(t *testing.T) {
 	viper.AddConfigPath("../../")
 	_ = viper.ReadInConfig()
 	logging.InitLog()
-
+	_ = os.Setenv("FATECLOUD_CHART_PATH", "../../")
 	type args struct {
 		namespace string
 		name      string
@@ -31,10 +32,10 @@ func TestInstall(t *testing.T) {
 		{
 			name: "install fate",
 			args: args{
-				namespace: "fate",
-				name:      "fate",
+				namespace: "fate-10000",
+				name:      "fate-10000",
 				version:   "v1.2.0",
-				value:     &Value{Val: "{ \"PartyId\":10000,\"endpoint\": { \"ip\":\"10.184.111.187\",\"port\":30000}}", T: "json"},
+				value:     &Value{Val: []byte(`{ "partyId":10000,"endpoint": { "ip":"10.184.111.187","port":30000}}`), T: "json"},
 			},
 			want: &releaseElement{
 				Name:       "fate",

@@ -93,6 +93,8 @@ func handleKubeFATEDatabaseUpdate() error {
 				kubeFateDB.mongoDatabase = viper.GetString("mongo.database")
 				kubeFateDB.setUpdateFlag()
 			}
+
+			time.Sleep(1 * time.Second)
 		}
 	}()
 

@@ -51,14 +51,22 @@ func SaveChartFromPath(path string, name string) (*db.HelmChart, error) {
 	if err := yaml.Unmarshal(chartData, metadata); err != nil {
 		return nil, errors.Wrap(err, "cannot load Chart.yaml")
 	}
-	version := metadata.Version
+	version := metadata.AppVersion
 
 	valuePath := path + "values.yaml"
 	valueString, err := ReadFileToString(valuePath)
 	if err != nil {
 		return nil, err
 	}
+
+	valueTemplatePath := path + "values-template.yaml"
+	valueTemplateString, err := ReadFileToString(valueTemplatePath)
+	if err != nil {
+		return nil, err
+	}
+
 	helm := db.NewHelmChart(name, string(chartData), valueString, templates, version)
+	helm.ValuesTemplate = valueTemplateString
 	return helm, nil
 }
 

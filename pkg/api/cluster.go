@@ -1,10 +1,8 @@
 package api
 
 import (
-	"encoding/json"
 	"fate-cloud-agent/pkg/db"
 	"fate-cloud-agent/pkg/job"
-	"fate-cloud-agent/pkg/service"
 	"github.com/rs/zerolog/log"
 	"net/http"
 
@@ -31,37 +29,24 @@ func (c *Cluster) Router(r *gin.RouterGroup) {
 }
 
 func (_ *Cluster) createCluster(c *gin.Context) {
-	parameter := new(installCluster)
 
-	if err := c.ShouldBindJSON(&parameter); err != nil {
+	clusterArgs := new(job.ClusterArgs)
+
+	if err := c.ShouldBindJSON(&clusterArgs); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.Debug().Interface("parameters", clusterArgs).Msg("parameters")
 
-	party := db.Party{
-		PartyId:   parameter.BoostrapParties.partyId,
-		Endpoint:  parameter.BoostrapParties.endpoint,
-		PartyType: parameter.BoostrapParties.partyType,
-	}
-
-	//create a cluster use parameter
-	cluster := db.NewFateCluster(parameter.Name, parameter.Namespace, parameter.Version,
-		service.GetChart(parameter.Version), db.ComputingBackend{}, party)
-
-	bytes, err := json.Marshal(party)
-
-	if err != nil {
-		log.Err(err).Msg("json Marshal party ")
-	}
 
 	// create job and use goroutine do job result save to db
-	j := job.ClusterInstall(cluster, string(bytes))
+	j := job.ClusterInstall(clusterArgs)
 
 	c.JSON(200, gin.H{"msg": "createCluster success", "data": j})
 }
 
 func (_ *Cluster) setCluster(c *gin.Context) {
-	cluster := new(db.FateCluster)
+	cluster := new(db.Cluster)
 	if err := c.ShouldBindJSON(&cluster); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -78,7 +63,7 @@ func (_ *Cluster) getCluster(c *gin.Context) {
 	if clusterId == "" {
 		c.JSON(400, gin.H{"msg": "err"})
 	}
-	cluster, err := db.FindFateClusterFindByUUID(clusterId)
+	cluster, err := db.FindClusterFindByUUID(clusterId)
 	if err != nil {
 		c.JSON(400, gin.H{"msg": err})
 	}
@@ -88,7 +73,7 @@ func (_ *Cluster) getCluster(c *gin.Context) {
 
 func (_ *Cluster) getClusterList(c *gin.Context) {
 
-	clusterList, err := db.FindFateClusterList("")
+	clusterList, err := db.FindClusterList("")
 	if err != nil {
 		c.JSON(400, gin.H{"msg": err.Error()})
 		return

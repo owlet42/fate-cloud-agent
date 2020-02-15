@@ -3,6 +3,7 @@ package service
 import (
 	"fate-cloud-agent/pkg/db"
 	"fate-cloud-agent/pkg/utils/config"
+	"fate-cloud-agent/pkg/utils/logging"
 
 	// "os"
 	"testing"
@@ -49,4 +50,5 @@ func InitConfigForTest() {
 	config.InitViper()
 	viper.AddConfigPath("../../")
 	viper.ReadInConfig()
+	logging.InitLog()
 }

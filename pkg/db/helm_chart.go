@@ -1,19 +1,22 @@
 package db
 
 import (
-	uuid "github.com/satori/go.uuid"
+	"errors"
+	"github.com/rs/zerolog/log"
+	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"helm.sh/helm/v3/pkg/chart"
 )
 
 // HelmChart helm chart model
 type HelmChart struct {
-	Uuid      string        `json:"uuid"`
-	Name      string        `json:"name"`
-	Chart     string        `json:"chart"`
-	Values    string        `json:"values"`
-	Templates []*chart.File `json:"templates"`
-	Version   string        `json:"version"`
+	Uuid           string        `json:"uuid"`
+	Name           string        `json:"name"`
+	Chart          string        `json:"chart"`
+	Values         string        `json:"values"`
+	ValuesTemplate string        `json:"values_template"`
+	Templates      []*chart.File `json:"templates"`
+	Version        string        `json:"version"`
 }
 
 // NewHelmChart create a new helm chart
@@ -43,7 +46,11 @@ func (helm *HelmChart) GetUuid() string {
 // FromBson convert bson to helm
 func (helm *HelmChart) FromBson(m *bson.M) interface{} {
 	bsonBytes, _ := bson.Marshal(m)
-	bson.Unmarshal(bsonBytes, helm)
+	err := bson.Unmarshal(bsonBytes, helm)
+	// todo return err
+	if err!=nil{
+		log.Err(err).Msg("FromBson error")
+	}
 	return *helm
 }
 
@@ -58,4 +65,20 @@ func (helm *HelmChart) FindHelmByNameAndVersion(name string, version string) *He
 		// return helms[0].(*HelmChart)
 	}
 	return nil
+}
+
+// FindHelmByNameAndVersion find helm chart via name and version
+func FindHelmByVersion(version string) (*HelmChart, error) {
+	filter := bson.M{"version": version}
+	helm := new(HelmChart)
+	result, err := FindByFilter(helm, filter)
+	if err != nil {
+		return nil, err
+	}
+	if len(result) == 0 {
+		return nil, errors.New("not find HelmChart")
+	}
+	HelmChart := result[0].(HelmChart)
+	return &HelmChart, nil
+
 }

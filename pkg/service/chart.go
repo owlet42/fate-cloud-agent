@@ -5,12 +5,12 @@ import (
 	"encoding/xml"
 	"errors"
 	"fate-cloud-agent/pkg/db"
-	"io/ioutil"
+	"fmt"
+	"github.com/spf13/viper"
 
 	"github.com/rs/zerolog/log"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
-	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
 	"sigs.k8s.io/yaml"
 )
@@ -22,18 +22,33 @@ type Chart interface {
 }
 
 type FateChart struct {
-	version string
-	*chart.Chart
 	*db.HelmChart
 }
 
 func (fc *FateChart) save() error {
+	helmUUID, err := db.Save(fc.HelmChart)
+	if err != nil {
+		return err
+	}
+	log.Debug().Str("helmUUID", helmUUID).Msg("helm chart save uuid")
 	return nil
 }
 
 func (fc *FateChart) read(version string) (*FateChart, error) {
 
-	return &FateChart{}, errors.New("not achieved")
+	helmChart, err := db.FindHelmByVersion(version)
+	if err != nil {
+		return nil, err
+	}
+	if helmChart == nil {
+		return nil, errors.New("find chart error")
+	}
+
+	log.Debug().Interface("helmChart version", helmChart.Version).Msg("find chart from db success")
+
+	return &FateChart{
+		HelmChart: helmChart,
+	}, nil
 }
 func (fc *FateChart) load(version string) (*FateChart, error) {
 	chartPath := GetChartPath(version)
@@ -47,29 +62,21 @@ func (fc *FateChart) load(version string) (*FateChart, error) {
 
 	log.Debug().Str("FateChart chartPath:", cp).Msg("chartPath:")
 
-	// Check chartPath dependencies to make sure all are present in /charts
-	chartRequested, err := loader.Load(cp)
+	helmChart, err := SaveChartFromPath(cp, "fate")
 	if err != nil {
 		return nil, err
 	}
 
 	return &FateChart{
-		version: version,
-		Chart:   chartRequested,
+		HelmChart: helmChart,
 	}, nil
 }
 
 func (fc *FateChart) GetChartValuesTemplates() (string, error) {
-	chartPath := GetChartPath(fc.version)
-
-	log.Debug().Str("path", chartPath+"values-templates.yaml").Msg("values-templates.yaml path,")
-
-	values, err := ioutil.ReadFile(chartPath + "values-templates.yaml")
-	if err != nil {
-		log.Error().Msg("readFile values-templates.yaml error :" + err.Error())
-		return "", err
+	if fc.ValuesTemplate == "" {
+		return "", errors.New("FateChart ValuesTemplate not exist")
 	}
-	return string(values), nil
+	return fc.ValuesTemplate, nil
 }
 
 func (fc *FateChart) GetChartValues(v map[string]interface{}) (map[string]interface{}, error) {
@@ -96,37 +103,43 @@ func GetFateChart(version string) (*FateChart, error) {
 	if err == nil {
 		return fc, nil
 	}
+	log.Debug().Interface("read error", err).Msg("read version FateChart err")
 
 	fc, err = fc.load(version)
+	if err != nil {
+		return nil, err
+	}
 	err = fc.save()
-	return fc, err
+	if err != nil {
+		return nil, err
+	}
+	return fc, nil
 }
 
 func (fc *FateChart) ToHelmChart() (*chart.Chart, error) {
-	ch := new(chart.Chart)
-	ch = fc.Chart
-	return ch, nil
+	if fc == nil || fc.HelmChart == nil {
+		return nil, errors.New("FateChart not exist")
+	}
+	return ConvertToChart(fc.HelmChart)
 }
 
 func GetChart(version string) db.HelmChart {
-
-	return db.HelmChart{}
-}
-
-func GetChartValuesTemplates(chartPath string) string {
-	values, err := ioutil.ReadFile(chartPath + "values-templates.yaml")
+	fateChart, err := GetFateChart(version)
 	if err != nil {
-		log.Error().Msg("readFile values-templates.yaml error :" + err.Error())
+		log.Err(err).Msg("get chart error")
 	}
-	return string(values)
+	return *fateChart.HelmChart
 }
 
 func GetChartPath(version string) string {
-	return "../../fate/"
+	ChartPath := viper.GetString("chart.path")
+	ChartPath = fmt.Sprintf("%sfate/%s/", ChartPath, version)
+	log.Debug().Str("ChartPath", ChartPath).Msg("ChartPath")
+	return ChartPath
 }
 
 type Value struct {
-	Val string
+	Val []byte
 	T   string // type json yaml yml
 }
 
@@ -134,13 +147,13 @@ func (v *Value) Unmarshal() (map[string]interface{}, error) {
 	si := make(map[string]interface{})
 	switch v.T {
 	case "yaml":
-		err := yaml.Unmarshal([]byte(v.Val), &si)
+		err := yaml.Unmarshal(v.Val, &si)
 		return si, err
 	case "json":
-		err := json.Unmarshal([]byte(v.Val), &si)
+		err := json.Unmarshal(v.Val, &si)
 		return si, err
 	case "xml":
-		err := xml.Unmarshal([]byte(v.Val), &si)
+		err := xml.Unmarshal(v.Val, &si)
 		return si, err
 	}
 	return nil, errors.New("unrecognized type")
