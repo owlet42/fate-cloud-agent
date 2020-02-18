@@ -15,6 +15,7 @@ COPY --from=0 /data/projects/fatecloud/config.yaml /data/projects/fatecloud/
 
 EXPOSE 8080
 
-CMD ["kubefate service"]
+CMD ["./kubefate service"]
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/sh","-c"]
+

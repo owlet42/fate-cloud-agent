@@ -5,7 +5,7 @@ server:
   port: 8080
 
 mongo:
-  url: 10.184.97.99:27017
+  url: localhost:27017
   username: root
   password: root
   database: KubeFate
