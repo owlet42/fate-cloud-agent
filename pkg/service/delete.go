@@ -30,7 +30,7 @@ func Delete(namespace, name string) (*release.UninstallReleaseResponse, error) {
 		return nil, err
 	}
 
-	log.Debug().Interface("res", res).Msg("delete result")
+	log.Debug().Interface("resInfo", res.Info).Msg("delete result")
 
 	return res, nil
 }

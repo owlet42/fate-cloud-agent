@@ -7,7 +7,7 @@ import (
 
 func debug(format string, v ...interface{}) {
 	s := fmt.Sprintf("helm debug %s", format)
-	log.Debug().Msgf(s, v)
+	log.Debug().Msgf(s, v...)
 	//log.Debug().Object()
 	//log.Debug().Msgf(format, v)
 }

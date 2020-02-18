@@ -2,9 +2,10 @@ package db
 
 import (
 	"fate-cloud-agent/pkg/utils/logging"
-	"github.com/rs/zerolog/log"
 	"testing"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 var jobJustAddedUuid string
@@ -27,7 +28,7 @@ func TestFindJobs(t *testing.T) {
 	t.Log(ToJson(results))
 }
 
-func TestFindJobByUUID(t *testing.T) {
+func TestJobFindByUUID(t *testing.T) {
 	InitConfigForTest()
 	job := &Job{}
 	results, _ := FindByUUID(job, jobJustAddedUuid)
@@ -70,20 +71,130 @@ func TestFindJobList(t *testing.T) {
 		// TODO: Add test cases.
 		{
 			name:    "get job list",
-			args:    args{args:""},
-			want:    make([]*Job,0),
+			args:    args{args: ""},
+			want:    make([]*Job, 0),
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := FindJobList(tt.args.args)
+			got, err := JobFindList(tt.args.args)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("FindJobList() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("JobFindList() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			for i,v:=range got{
-				log.Info().Int("key",i).Interface("job",v).Msg("got")
+			for i, v := range got {
+				log.Info().Int("key", i).Interface("job", v).Msg("got")
+			}
+		})
+	}
+}
+
+func TestFindJobByUUID(t *testing.T) {
+	InitConfigForTest()
+	logging.InitLog()
+	type args struct {
+		uuid string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "find no db",
+			args: args{
+				uuid: "11677165-bd6e-421b-9a79-c75b2670c133",
+			},
+			wantErr: true,
+		},
+		{
+			name: "find in db",
+			args: args{
+				uuid: "c21f2071-8ee6-46ad-9204-5d241ba29507",
+			},
+			wantErr: false,
+		},
+		{
+			name: "find in db",
+			args: args{
+				uuid: "191315be-ed0f-407d-b7cf-3a354d723637",
+			},
+			wantErr: false,
+		},
+		{
+			name: "find in db",
+			args: args{
+				uuid: "674a1fd4-7306-4e8c-8017-ba5be98c2037",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := JobFindByUUID(tt.args.uuid)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("JobFindByUUID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			t.Logf("JobFindByUUID() = %+v", got)
+		})
+	}
+}
+
+func TestJobDeleteByUUID(t *testing.T) {
+	InitConfigForTest()
+	logging.InitLog()
+	type args struct {
+		uuid string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:    "test",
+			args:    args{
+				uuid: "",
+			},
+			wantErr: true,
+		},
+		{
+			name:    "test",
+			args:    args{
+				uuid: "c21f2071-8ee6-46ad-9204-5d241ba29507",
+			},
+			wantErr: false,
+		},
+		{
+			name:    "test",
+			args:    args{
+				uuid: "191315be-ed0f-407d-b7cf-3a354d723637",
+			},
+			wantErr: false,
+		},
+		{
+			name:    "test",
+			args:    args{
+				uuid: "674a1fd4-7306-4e8c-8017-ba5be98c2037",
+			},
+			wantErr: false,
+		},
+		{
+			name:    "test",
+			args:    args{
+				uuid: "6195ab4f-2411-4c34-8d83-297373a02216",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := JobDeleteByUUID(tt.args.uuid); (err != nil) != tt.wantErr {
+				t.Errorf("JobDeleteByUUID() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

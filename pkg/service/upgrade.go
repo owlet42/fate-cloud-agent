@@ -3,15 +3,13 @@ package service
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"helm.sh/helm/v3/pkg/action"
-	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/cli/values"
-	"helm.sh/helm/v3/pkg/getter"
 	"os"
 )
 
-func Upgrade(namespace, name, chartPath string) error {
+func Upgrade(namespace, name, version string, value *Value) error {
 
 	EnvCs.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
@@ -23,7 +21,6 @@ func Upgrade(namespace, name, chartPath string) error {
 
 	cfg := new(action.Configuration)
 	client := action.NewUpgrade(cfg)
-	valueOpts := &values.Options{}
 
 	if err := cfg.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), debug); err != nil {
 		return err
@@ -36,16 +33,36 @@ func Upgrade(namespace, name, chartPath string) error {
 		client.Version = ">0.0.0-0"
 	}
 
-	vals, err := valueOpts.MergeValues(getter.All(settings))
+	fc, err := GetFateChart(version)
 	if err != nil {
+		log.Err(err).Msg("GetFateChart error")
+		return err
+	}
+	log.Debug().Interface("FateChart", fc).Msg("GetFateChart success")
+
+	// fateChart to helmChart
+	ch, err := fc.ToHelmChart()
+	if err != nil {
+		log.Err(err).Msg("GetFateChart error")
 		return err
 	}
 
-	// Check chart dependencies to make sure all are present in /charts
-	ch, err := loader.Load(chartPath)
+	// template to values map
+	v, err := value.Unmarshal()
 	if err != nil {
+		log.Err(err).Msg("values yaml Unmarshal error")
+		return  err
+	}
+	log.Debug().Fields(v).Msg("temp values:")
+
+	// get values map
+	val, err := fc.GetChartValues(v)
+	if err != nil {
+		log.Err(err).Msg("values yaml Unmarshal error")
 		return err
 	}
+	log.Debug().Fields(val).Msg("chart values: ")
+
 	if req := ch.Metadata.Dependencies; req != nil {
 		if err := action.CheckDependencies(ch, req); err != nil {
 			return err
@@ -56,11 +73,9 @@ func Upgrade(namespace, name, chartPath string) error {
 		fmt.Println("WARNING: This chart is deprecated")
 	}
 
-	_, err = client.Run(name, ch, vals)
+	_, err = client.Run(name, ch, val)
 	if err != nil {
 		return errors.Wrap(err, "UPGRADE FAILED")
 	}
-
 	return nil
-
 }

@@ -1,6 +1,6 @@
 FROM golang as build
 
-WORKDIR /workdir
+WORKDIR /data/projects/fatecloud
 
 COPY . ./
 
@@ -8,10 +8,11 @@ RUN go build -a -ldflags '-s' -installsuffix cgo -o kubefate kubefate.go
 
 FROM centos
 
-COPY --from=0 /workdir/kubefate /workdir/
+COPY --from=0 /data/projects/fatecloud/kubefate /data/projects/fatecloud/
+COPY --from=0 /data/projects/fatecloud/config.yaml /data/projects/fatecloud/
 
 EXPOSE 8080
 
 CMD ["service"]
 
-ENTRYPOINT ["/workdir/kubefate"]
+ENTRYPOINT ["/data/projects/fatecloud/kubefate"]

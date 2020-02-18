@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"time"
@@ -17,10 +18,15 @@ type Repository interface {
 
 // Save the object in the database
 func Save(repository Repository) (string, error) {
+
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db, _ := ConnectDb()
+
+	db, err := ConnectDb()
+	if err != nil {
+		return "", err
+	}
 	collection := db.Collection(repository.getCollection())
-	_, err := collection.InsertOne(ctx, repository)
+	_, err = collection.InsertOne(ctx, repository)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -82,6 +88,32 @@ func FindByUUID(repository Repository, uuid string) (interface{}, error) {
 	return r, nil
 }
 
+// FindByUUID find the object from the database via uuid
+func FindOneByUUID(repository Repository, uuid string) (interface{}, error) {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	db, _ := ConnectDb()
+	collection := db.Collection(repository.getCollection())
+	filter := bson.M{"uuid": uuid}
+	cur := collection.FindOne(ctx, filter)
+
+	if cur.Err() != nil {
+		return nil, cur.Err()
+	}
+
+	var r interface{}
+	// Decode to bson map
+	var result bson.M
+	err := cur.Decode(&result)
+	// Convert bson.M to struct
+	r = repository.FromBson(&result)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return r, nil
+}
+
 // UpdateByUUID Update the object in the database via uuid
 func UpdateByUUID(repository Repository, uuid string) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
@@ -135,6 +167,22 @@ func DeleteByUUID(repository Repository, uuid string) (int64, error) {
 	}
 
 	return deleteResult.DeletedCount, err
+}
+
+// DeleteByUUID delete object from database via uuid
+func DeleteOneByUUID(repository Repository, uuid string) error {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	db, _ := ConnectDb()
+	collection := db.Collection(repository.getCollection())
+	filter := bson.D{{"uuid", uuid}}
+	r, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+	if r.DeletedCount == 0 {
+		return errors.New("this record may not exist(DeletedCount==0)")
+	}
+	return nil
 }
 
 // FindByFilter find objects from database via custom filter, such as: findByName, findByStatus

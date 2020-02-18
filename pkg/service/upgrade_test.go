@@ -4,51 +4,46 @@ import (
 	"fate-cloud-agent/pkg/utils/config"
 	"fate-cloud-agent/pkg/utils/logging"
 	"github.com/spf13/viper"
-	"reflect"
+	"os"
 	"testing"
-
-	"helm.sh/helm/v3/pkg/release"
 )
 
-func TestDelete(t *testing.T) {
-
+func TestUpgrade(t *testing.T) {
 	_ = config.InitViper()
 	viper.AddConfigPath("../../")
 	_ = viper.ReadInConfig()
 	logging.InitLog()
+	_ = os.Setenv("FATECLOUD_CHART_PATH", "../../")
 	type args struct {
 		namespace string
 		name      string
+		version   string
+		value     *Value
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *release.UninstallReleaseResponse
 		wantErr bool
 	}{
 		// TODO: Add test cases.
 		{
-			name: "delete",
-			args: args{
+			name:    "",
+			args:    args{
 				namespace: "fate-10000",
 				name:      "fate-10000",
-			},
-			want: &release.UninstallReleaseResponse{
-				Release: nil,
-				Info:    "",
+				version:   "v1.2.0",
+				value:     &Value{
+					Val: []byte(`{ "partyId":10000,"endpoint": { "ip":"10.184.111.187","port":30030}}`),
+					T:   "json",
+				},
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Delete(tt.args.namespace, tt.args.name)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got.Info, tt.want.Info) {
-				t.Errorf("Delete() = %+v, want %+v", got, tt.want)
+			if err := Upgrade(tt.args.namespace, tt.args.name, tt.args.version, tt.args.value); (err != nil) != tt.wantErr {
+				t.Errorf("Upgrade() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

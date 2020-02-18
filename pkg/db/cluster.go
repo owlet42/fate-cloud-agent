@@ -2,8 +2,9 @@ package db
 
 import (
 	"bytes"
-
-	uuid "github.com/satori/go.uuid"
+	"errors"
+	"github.com/rs/zerolog/log"
+	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -55,6 +56,22 @@ func (s ClusterStatus) MarshalJSON() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
+func (cluster *Cluster) getCollection() string {
+	return "cluster"
+}
+
+// GetUuid get cluster uuid
+func (cluster *Cluster) GetUuid() string {
+	return cluster.Uuid
+}
+
+// FromBson convert bson to cluster
+func (cluster *Cluster) FromBson(m *bson.M) interface{} {
+	bsonBytes, _ := bson.Marshal(m)
+	bson.Unmarshal(bsonBytes, cluster)
+	return *cluster
+}
+
 // NewCluster create cluster object with basic argument
 func NewCluster(name string, nameSpaces string, version string, backend ComputingBackend, party Party) *Cluster {
 	cluster := &Cluster{
@@ -70,11 +87,21 @@ func NewCluster(name string, nameSpaces string, version string, backend Computin
 	return cluster
 }
 
-// FindClusterFindByUUID get cluster from via uuid
-func FindClusterFindByUUID(uuid string) (*Cluster, error) {
-	result, err := FindByUUID(new(Cluster), uuid)
-	fc := result.(Cluster)
-	return &fc, err
+// ClusterFindByUUID get cluster from via uuid
+func ClusterFindByUUID(uuid string) (*Cluster, error) {
+	result, err := FindOneByUUID(new(Cluster), uuid)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil {
+		return nil, errors.New("cluster no find")
+	}
+	Cluster, ok := result.(Cluster)
+	if !ok {
+		return nil, errors.New("assertion type error")
+	}
+	log.Debug().Interface("Cluster", Cluster).Msg("find Cluster success")
+	return &Cluster, nil
 }
 
 // FindClusterList get all cluster list
@@ -94,18 +121,13 @@ func FindClusterList(args string) ([]*Cluster, error) {
 	return clusterList, nil
 }
 
-func (cluster *Cluster) getCollection() string {
-	return "cluster"
-}
+func ClusterDeleteByUUID(uuid string) error {
 
-// GetUuid get cluster uuid
-func (cluster *Cluster) GetUuid() string {
-	return cluster.Uuid
-}
+	err := DeleteOneByUUID(new(Cluster), uuid)
+	if err != nil {
+		return err
+	}
 
-// FromBson convert bson to cluster
-func (cluster *Cluster) FromBson(m *bson.M) interface{} {
-	bsonBytes, _ := bson.Marshal(m)
-	bson.Unmarshal(bsonBytes, cluster)
-	return *cluster
+	log.Debug().Interface("ClusterUuid", uuid).Msg("delete Cluster success")
+	return nil
 }

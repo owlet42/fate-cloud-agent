@@ -3,10 +3,9 @@ package api
 import (
 	"fate-cloud-agent/pkg/db"
 	"fate-cloud-agent/pkg/job"
+	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 type Cluster struct {
@@ -24,7 +23,6 @@ func (c *Cluster) Router(r *gin.RouterGroup) {
 		cluster.GET("/", c.getClusterList)
 		cluster.GET("/:clusterId", c.getCluster)
 		cluster.DELETE("/:clusterId", c.deleteCluster)
-
 	}
 }
 
@@ -40,15 +38,19 @@ func (_ *Cluster) createCluster(c *gin.Context) {
 
 
 	// create job and use goroutine do job result save to db
-	j := job.ClusterInstall(clusterArgs)
-
+	j,err := job.ClusterInstall(clusterArgs)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(200, gin.H{"msg": "createCluster success", "data": j})
 }
 
 func (_ *Cluster) setCluster(c *gin.Context) {
+
 	cluster := new(db.Cluster)
 	if err := c.ShouldBindJSON(&cluster); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -59,11 +61,12 @@ func (_ *Cluster) setCluster(c *gin.Context) {
 }
 
 func (_ *Cluster) getCluster(c *gin.Context) {
+
 	clusterId := c.Param("clusterId")
 	if clusterId == "" {
 		c.JSON(400, gin.H{"msg": "err"})
 	}
-	cluster, err := db.FindClusterFindByUUID(clusterId)
+	cluster, err := db.ClusterFindByUUID(clusterId)
 	if err != nil {
 		c.JSON(400, gin.H{"msg": err})
 	}
@@ -82,6 +85,7 @@ func (_ *Cluster) getClusterList(c *gin.Context) {
 }
 
 func (_ *Cluster) deleteCluster(c *gin.Context) {
+
 	clusterId := c.Param("clusterId")
 	if clusterId == "" {
 		c.JSON(400, gin.H{"msg": "err"})

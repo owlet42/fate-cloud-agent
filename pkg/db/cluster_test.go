@@ -1,6 +1,7 @@
 package db
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -78,5 +79,64 @@ func TestReturnMethods(t *testing.T) {
 			t.Log(oneFate.GetUuid())
 			t.Log(oneFate.Name)
 		}
+	}
+}
+
+func TestFindClusterFindByUUID(t *testing.T) {
+	InitConfigForTest()
+	type args struct {
+		uuid string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *Cluster
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:    "test",
+			args:    args{
+				uuid: "0",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "test",
+			args:    args{
+				uuid: "2f41aabe-1610-4e4a-bc1c-9b24e9f8ec11",
+			},
+			want:    &Cluster{
+				Uuid:       "2f41aabe-1610-4e4a-bc1c-9b24e9f8ec11",
+				Name:       "fate-8888",
+				NameSpaces: "fate-8888",
+				Version:    "v1.2.0",
+				Metadata:   map[string]interface{}{},
+				Status:     Creating_c,
+				Backend: ComputingBackend{
+					BackendType: "",
+					BackendInfo: "",
+				},
+				BootstrapParties: Party{
+					PartyId:   "",
+					Endpoint:  "",
+					PartyType: "",
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ClusterFindByUUID(tt.args.uuid)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ClusterFindByUUID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ClusterFindByUUID() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

@@ -2,6 +2,8 @@ package db
 
 import (
 	"bytes"
+	"errors"
+	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"time"
@@ -30,7 +32,8 @@ const (
 type JobStatus int
 
 const (
-	Running_j JobStatus = iota
+	Padding_j JobStatus = iota //
+	Running_j
 	Success_j
 	Failed_j
 	Retry_j
@@ -85,8 +88,9 @@ func (job *Job) FromBson(m *bson.M) interface{} {
 
 	return *job
 }
+
 //
-func FindJobList(args string) ([]*Job, error) {
+func JobFindList(args string) ([]*Job, error) {
 
 	job := &Job{}
 	result, err := Find(job)
@@ -100,4 +104,32 @@ func FindJobList(args string) ([]*Job, error) {
 		jobList = append(jobList, &cluster)
 	}
 	return jobList, nil
+}
+
+func JobFindByUUID(uuid string) (*Job, error) {
+	j := Job{}
+	result, err := FindOneByUUID(&j, uuid)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil {
+		return nil, errors.New("job no find")
+	}
+	job, ok := result.(Job)
+	if !ok {
+		return nil, errors.New("assertion type error")
+	}
+	log.Debug().Interface("job", job).Msg("find job success")
+	return &job, nil
+}
+
+func JobDeleteByUUID(uuid string) error {
+
+	err := DeleteOneByUUID(new(Job), uuid)
+	if err != nil {
+		return err
+	}
+
+	log.Debug().Interface("jobUuid", uuid).Msg("delete job success")
+	return nil
 }

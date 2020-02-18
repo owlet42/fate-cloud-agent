@@ -31,13 +31,19 @@ func Install(namespace, name, version string, value *Value) (*releaseElement, er
 		return nil, err
 	}
 
+	// if namespace does not exist, create namespace
+	//err = CheckNamespace(namespace)
+	//if err != nil {
+	//	log.Err(err).Msg("CheckNamespace error")
+	//	return nil, err
+	//}
 	// get chart by version from repository
 	fc, err := GetFateChart(version)
 	if err != nil {
-		log.Err(err).Msg("GetFateChart err")
+		log.Err(err).Msg("GetFateChart error")
 		return nil, err
 	}
-	log.Debug().Interface("FateChart",fc).Msg("GetFateChart success")
+	log.Debug().Interface("FateChart", fc).Msg("GetFateChart success")
 
 	// fateChart to helmChart
 	chartRequested, err := fc.ToHelmChart()

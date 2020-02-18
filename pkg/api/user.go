@@ -49,6 +49,7 @@ func generateAdminUser() {
 }
 
 func (*User) createUser(c *gin.Context) {
+
 	user := new(db.User)
 	if err := c.ShouldBindJSON(user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -71,6 +72,7 @@ func (*User) createUser(c *gin.Context) {
 }
 
 func (*User) setUser(c *gin.Context) {
+
 	userId := c.Param("userId")
 	user := new(db.User)
 	if err := c.ShouldBindJSON(user); err != nil {
@@ -86,6 +88,7 @@ func (*User) setUser(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "setUser success"})
 }
 func (*User) getUser(c *gin.Context) {
+
 	userId := c.Param("userId")
 	if userId == "" {
 		c.JSON(400, gin.H{"msg": "err"})
@@ -98,12 +101,14 @@ func (*User) getUser(c *gin.Context) {
 }
 
 func getUserFindByUUID(uuid string) (interface{}, error) {
+
 	user := new(db.User)
 	result, err := db.FindByUUID(user, uuid)
 	return result, err
 }
 
 func (*User) deleteUser(c *gin.Context) {
+
 	userId := c.Param("userId")
 	if userId == "" {
 		c.JSON(400, gin.H{"msg": "err"})
@@ -118,5 +123,6 @@ func (*User) deleteUser(c *gin.Context) {
 }
 
 func (*User) findUser(c *gin.Context) {
+
 	c.JSON(200, gin.H{"msg": "findUser success"})
 }
