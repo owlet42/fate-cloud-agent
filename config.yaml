@@ -1,20 +1,11 @@
 # Comm prefix FATECLOUD
-registry: "federatedai"
-tag: "1.2.0-release"
-partyList:
-  - partyId: 10000
-    nodePort: 30010
-    namespace: fate-10000
-  - partyId: 9999
-    nodePort: 30009
-    namespace: fate-9999
 
 server:
   address: localhost
   port: 8080
 
 mongo:
-  url: localhost:27017
+  url: 10.184.97.99:27017
   username: root
   password: root
   database: KubeFate
@@ -23,7 +14,7 @@ log:
   level: debug
 
 chart:
-  repository: "https://example.com/charts/" # chart url https://example.com/charts/fate-1.2.0.tgz
+  repository: "https://owlet42.github.io/helm-chart/" # chart url https://example.com/charts/fate-1.2.0.tgz
 
 # TODO
 # persistent layer

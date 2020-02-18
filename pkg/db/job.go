@@ -32,7 +32,7 @@ const (
 type JobStatus int
 
 const (
-	Padding_j JobStatus = iota //
+	Pending_j JobStatus = iota //
 	Running_j
 	Success_j
 	Failed_j

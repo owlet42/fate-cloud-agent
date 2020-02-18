@@ -1,7 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kubefate
+  labels:
+    name: kubefate
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubefate
+  namespace: kubefate
   labels:
     fate: kubefate
 spec:
@@ -17,7 +25,7 @@ spec:
         fate: kubefate
     spec:
       containers:
-        - image: federatedai/kubefate
+        - image: slelove/kubefate
           imagePullPolicy: IfNotPresent
           name: kubefate
           env:
@@ -52,6 +60,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kubefate
+  namespace: kubefate
   labels:
     fate: kubefate
 spec:
