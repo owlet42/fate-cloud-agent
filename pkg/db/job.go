@@ -82,11 +82,16 @@ func (job *Job) GetUuid() string {
 	return job.Uuid
 }
 
-func (job *Job) FromBson(m *bson.M) interface{} {
-	bsonBytes, _ := bson.Marshal(m)
-	bson.Unmarshal(bsonBytes, job)
-
-	return *job
+func (job *Job) FromBson(m *bson.M) (interface{},error) {
+	bsonBytes, err := bson.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	err = bson.Unmarshal(bsonBytes, job)
+	if err != nil {
+		return nil, err
+	}
+	return *job,nil
 }
 
 //

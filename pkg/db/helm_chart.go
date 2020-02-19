@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"helm.sh/helm/v3/pkg/chart"
@@ -44,14 +43,16 @@ func (helm *HelmChart) GetUuid() string {
 }
 
 // FromBson convert bson to helm
-func (helm *HelmChart) FromBson(m *bson.M) interface{} {
-	bsonBytes, _ := bson.Marshal(m)
-	err := bson.Unmarshal(bsonBytes, helm)
-	// todo return err
-	if err!=nil{
-		log.Err(err).Msg("FromBson error")
+func (helm *HelmChart) FromBson(m *bson.M) (interface{}, error) {
+	bsonBytes, err := bson.Marshal(m)
+	if err != nil {
+		return nil, err
 	}
-	return *helm
+	err = bson.Unmarshal(bsonBytes, helm)
+	if err != nil {
+		return nil, err
+	}
+	return *helm, nil
 }
 
 // FindHelmByNameAndVersion find helm chart via name and version

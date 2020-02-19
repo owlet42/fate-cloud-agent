@@ -4,7 +4,6 @@ import (
 	"fate-cloud-agent/pkg/utils/config"
 	"fate-cloud-agent/pkg/utils/logging"
 	"github.com/spf13/viper"
-	"os"
 	"testing"
 )
 
@@ -13,7 +12,6 @@ func TestRun(t *testing.T) {
 	viper.AddConfigPath("../../")
 	_ = viper.ReadInConfig()
 	logging.InitLog()
-	_ = os.Setenv("FATECLOUD_CHART_PATH", "./")
 	tests := []struct {
 		name string
 	}{

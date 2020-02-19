@@ -3,7 +3,7 @@ package db
 import (
 	"bytes"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -58,11 +58,16 @@ func (user *User) GetUuid() string {
 	return user.Uuid
 }
 
-func (user *User) FromBson(m *bson.M) interface{} {
-	bsonBytes, _ := bson.Marshal(m)
-	bson.Unmarshal(bsonBytes, user)
-
-	return *user
+func (user *User) FromBson(m *bson.M) (interface{}, error) {
+	bsonBytes, err := bson.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	err = bson.Unmarshal(bsonBytes, user)
+	if err != nil {
+		return nil, err
+	}
+	return *user, nil
 }
 
 func (user *User) IsValid() bool {

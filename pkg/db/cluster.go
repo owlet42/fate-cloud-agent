@@ -66,10 +66,16 @@ func (cluster *Cluster) GetUuid() string {
 }
 
 // FromBson convert bson to cluster
-func (cluster *Cluster) FromBson(m *bson.M) interface{} {
-	bsonBytes, _ := bson.Marshal(m)
-	bson.Unmarshal(bsonBytes, cluster)
-	return *cluster
+func (cluster *Cluster) FromBson(m *bson.M) (interface{}, error) {
+	bsonBytes, err := bson.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	err = bson.Unmarshal(bsonBytes, cluster)
+	if err != nil {
+		return nil, err
+	}
+	return *cluster, nil
 }
 
 // NewCluster create cluster object with basic argument

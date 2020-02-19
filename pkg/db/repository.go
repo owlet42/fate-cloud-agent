@@ -12,7 +12,7 @@ import (
 // Repository is the basic interface of the database CRUD
 type Repository interface {
 	getCollection() string
-	FromBson(m *bson.M) interface{}
+	FromBson(m *bson.M) (interface{}, error)
 	GetUuid() string
 }
 
@@ -37,7 +37,11 @@ func Save(repository Repository) (string, error) {
 // Find find the objects from the database
 func Find(repository Repository) ([]interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db, _ := ConnectDb()
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	collection := db.Collection(repository.getCollection())
 	cur, err := collection.Find(ctx, bson.M{}) // find
 	if err != nil {
@@ -50,8 +54,12 @@ func Find(repository Repository) ([]interface{}, error) {
 		// Decode to bson map
 		var result bson.M
 		err := cur.Decode(&result)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
 		// Convert bson.M to struct
-		r := repository.FromBson(&result)
+		r,err := repository.FromBson(&result)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -64,7 +72,11 @@ func Find(repository Repository) ([]interface{}, error) {
 // FindByUUID find the object from the database via uuid
 func FindByUUID(repository Repository, uuid string) (interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db, _ := ConnectDb()
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	collection := db.Collection(repository.getCollection())
 	filter := bson.M{"uuid": uuid}
 	cur, err := collection.Find(ctx, filter)
@@ -78,8 +90,12 @@ func FindByUUID(repository Repository, uuid string) (interface{}, error) {
 		// Decode to bson map
 		var result bson.M
 		err := cur.Decode(&result)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
 		// Convert bson.M to struct
-		r = repository.FromBson(&result)
+		r,err = repository.FromBson(&result)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -91,7 +107,11 @@ func FindByUUID(repository Repository, uuid string) (interface{}, error) {
 // FindByUUID find the object from the database via uuid
 func FindOneByUUID(repository Repository, uuid string) (interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db, _ := ConnectDb()
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	collection := db.Collection(repository.getCollection())
 	filter := bson.M{"uuid": uuid}
 	cur := collection.FindOne(ctx, filter)
@@ -103,9 +123,13 @@ func FindOneByUUID(repository Repository, uuid string) (interface{}, error) {
 	var r interface{}
 	// Decode to bson map
 	var result bson.M
-	err := cur.Decode(&result)
+	err = cur.Decode(&result)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	// Convert bson.M to struct
-	r = repository.FromBson(&result)
+	r,err = repository.FromBson(&result)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -117,7 +141,11 @@ func FindOneByUUID(repository Repository, uuid string) (interface{}, error) {
 // UpdateByUUID Update the object in the database via uuid
 func UpdateByUUID(repository Repository, uuid string) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db, _ := ConnectDb()
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+		return  err
+	}
 	collection := db.Collection(repository.getCollection())
 	doc, err := ToDoc(repository)
 	if err != nil {
@@ -157,7 +185,11 @@ func ToJson(r interface{}) string {
 // DeleteByUUID delete object from database via uuid
 func DeleteByUUID(repository Repository, uuid string) (int64, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db, _ := ConnectDb()
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
 	collection := db.Collection(repository.getCollection())
 	filter := bson.D{{"uuid", uuid}}
 	deleteResult, err := collection.DeleteMany(ctx, filter)
@@ -172,7 +204,11 @@ func DeleteByUUID(repository Repository, uuid string) (int64, error) {
 // DeleteByUUID delete object from database via uuid
 func DeleteOneByUUID(repository Repository, uuid string) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db, _ := ConnectDb()
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	collection := db.Collection(repository.getCollection())
 	filter := bson.D{{"uuid", uuid}}
 	r, err := collection.DeleteOne(ctx, filter)
@@ -188,7 +224,11 @@ func DeleteOneByUUID(repository Repository, uuid string) error {
 // FindByFilter find objects from database via custom filter, such as: findByName, findByStatus
 func FindByFilter(repository Repository, filter bson.M) ([]interface{}, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	db, _ := ConnectDb()
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	collection := db.Collection(repository.getCollection())
 	cur, err := collection.Find(ctx, filter)
 	if err != nil {
@@ -201,8 +241,12 @@ func FindByFilter(repository Repository, filter bson.M) ([]interface{}, error) {
 		// Decode to bson map
 		var result bson.M
 		err := cur.Decode(&result)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
 		// Convert bson.M to struct
-		r := repository.FromBson(&result)
+		r,err := repository.FromBson(&result)
 		if err != nil {
 			log.Println(err)
 			return nil, err

@@ -14,7 +14,7 @@ type User db.User
 
 // Router is user router definition method
 func (u *User) Router(r *gin.RouterGroup) {
-	generateAdminUser()
+
 	authMiddleware, _ := GetAuthMiddleware()
 	user := r.Group("/user")
 	{
@@ -33,7 +33,7 @@ func (u *User) Router(r *gin.RouterGroup) {
 	}
 }
 
-func generateAdminUser() {
+func generateAdminUser() error {
 	username := viper.GetString("user.username")
 	password := viper.GetString("user.password")
 
@@ -42,10 +42,11 @@ func generateAdminUser() {
 		uuid, err := db.Save(u)
 		if err != nil {
 			log.Err(err).Str("userName",username).Msg("user save error")
-			return
+			return err
 		}
 		log.Info().Str("userUuid",uuid).Str("userName",username).Msg("user  save success")
 	}
+	return nil
 }
 
 func (*User) createUser(c *gin.Context) {

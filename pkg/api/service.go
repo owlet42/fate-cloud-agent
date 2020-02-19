@@ -10,8 +10,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+func initUser() {
+	err := generateAdminUser()
+	if err != nil {
+		panic(fmt.Errorf("generate admin user error: %s\n", err))
+	}
+}
+
 // Run starts the API server
 func Run() {
+	initUser()
 	// use gin.New() instead
 	r := gin.New()
 
