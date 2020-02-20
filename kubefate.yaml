@@ -30,9 +30,33 @@ spec:
           name: kubefate
           env:
             - name: FATECLOUD_MONGO_URL
-              value: "127.0.0.1:27017"
+              value: "mongo:27017"
+            - name: FATECLOUD_SERVER_ADDRESS
+              value: "0.0.0.0"
           ports:
             - containerPort: 8080
+      restartPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: kubefate
+  labels:
+    fate: mongo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      fate: mongo
+  template:
+    metadata:
+      labels:
+        fate: mongo
+    spec:
+      containers:
         - image: mongo
           imagePullPolicy: IfNotPresent
           name: mongo
@@ -44,6 +68,23 @@ spec:
           ports:
             - containerPort: 27017
       restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: kubefate
+  labels:
+    fate: mongo
+spec:
+  ports:
+    - name: "27017"
+      port: 27017
+      targetPort: 27017
+      protocol: TCP
+  type: ClusterIP
+  selector:
+    fate: mongo
 ---
 apiVersion: v1
 kind: Service
@@ -68,7 +109,6 @@ metadata:
   name: kubefate
   namespace: kubefate
   annotations:
-    kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
     - host: kubefate.net

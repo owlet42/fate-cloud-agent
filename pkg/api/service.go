@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fate-cloud-agent/pkg/service"
 	"fmt"
 	"os"
 
@@ -20,6 +21,10 @@ func initUser() {
 // Run starts the API server
 func Run() {
 	initUser()
+	err := service.RepoAddAndUpdate()
+	if err != nil {
+		panic(err)
+	}
 	// use gin.New() instead
 	r := gin.New()
 

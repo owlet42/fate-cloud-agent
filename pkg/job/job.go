@@ -47,7 +47,7 @@ func ClusterInstall(clusterArgs *ClusterArgs) (*db.Job, error) {
 			log.Debug().Str("ClusterId", cluster.Uuid).Msg("install cluster success")
 		}
 
-		job.EndTime = time.Now().String()
+		job.EndTime = time.Now()
 		err = db.UpdateByUUID(job, job.Uuid)
 		if err != nil {
 			log.Err(err).Str("jobId", job.Uuid).Msg("update job By Uuid error")
@@ -96,7 +96,7 @@ func ClusterUpdate(cluster *db.Cluster) *db.Job {
 			log.Debug().Str("ClusterId", cluster.Uuid).Msg("upgrade cluster success")
 		}
 
-		job.EndTime = time.Now().String()
+		job.EndTime = time.Now()
 
 		err = db.UpdateByUUID(job, job.Uuid)
 		if err != nil {
@@ -164,7 +164,7 @@ func ClusterDelete(clusterId string) *db.Job {
 		if job.Status==db.Running_j{
 			job.Status = db.Success_j
 		}
-		job.EndTime = time.Now().String()
+		job.EndTime = time.Now()
 		err = db.UpdateByUUID(job, job.Uuid)
 		if err != nil {
 			log.Err(err).Str("jobId", job.Uuid).Msg("update job By Uuid error")

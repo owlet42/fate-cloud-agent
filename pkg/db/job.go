@@ -12,8 +12,8 @@ import (
 
 type Job struct {
 	Uuid      string    `json:"uuid"`
-	StartTime string `json:"start_time"`
-	EndTime   string `json:"end_time"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
 	Method    string    `json:"method"`
 	Result    string    `json:"result"`
 	ClusterId string    `json:"cluster_id"`
@@ -86,7 +86,7 @@ func NewJob(method string, creator string) *Job {
 		Uuid:      uuid.NewV4().String(),
 		Method:    method,
 		Creator:   creator,
-		StartTime: time.Now().String(),
+		StartTime: time.Now(),
 		Status:    Pending_j,
 	}
 
