@@ -9,11 +9,11 @@ func configCommand() *cli.Command {
 	return &cli.Command{
 		Name:   "config",
 		Usage:  "config",
-		Action: config,
+		Action: conf,
 	}
 }
 
-func config(c *cli.Context) error {
+func conf(c *cli.Context) error {
 
-	return service.Config()
+	return service.Conf()
 }

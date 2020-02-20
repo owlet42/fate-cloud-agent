@@ -1,28 +1,70 @@
 # fate-cloud-agent
 
-start service
-```bash
-$ go run kubefate.go service
-```
-
-deploy
-```bash
-http://127.0.0.1:8080/deploy?name=fate-10000&namespace=fate-10000&chart=E:\machenlong\AI\github\owlet42\KubeFATE\k8s-deploy\fate-10000
-```
-list
-```bash
-http://127.0.0.1:8080/list?namespace=allnamespaces
-```
-delete
-```bash
-http://127.0.0.1:8080/delete?name=fate-10000&namespace=fate-10000
-```
+config
 
 
+init service pod
 ```bash
-git clone https://gitlab.eng.vmware.com/fate/fate-cloud-agent.git
-cd fate-cloud-agent
-docker build -t kubefate .
-docker run --rm -d -p 8080:8080 --name kubefate -v ~/.kube/:/root/.kube/ -v ~/github/KubeFATE/k8s-deploy/:/workdir/k8s-deploy/ kubefate
+$ kubefate init -f ./config.yaml
 ```
-kubernetes 和 chart 文件通过mount进镜像
+kubefate service pod status 
+```bash
+$ kubefate status
+```
+
+*Service pod must run successfully*
+
+cluster deploy
+```bash
+$ kubefate install <clusterName> -f ./cluster.yaml
+```
+
+cluster upgrade 
+```bash
+$ kubefate upgrade <clusterName> -f ./cluster.yaml
+```
+
+cluster delete 
+```bash
+$ kubefate upgrade <clusterName>
+```
+
+cluster list 
+```bash
+$ kubefate list
+```
+
+cluster info 
+```bash
+$ kubefate describe <clusterName>
+```
+
+job info
+```bash
+$ kubefate job <jobUUID>
+```
+
+job list
+```bash
+$ kubefate job list
+```
+
+job delete
+```bash
+$ kubefate job delete <jobUUID>
+```
+
+user info
+```bash
+$ kubefate user <userUUID>
+```
+
+user list
+```bash
+$ kubefate user list
+```
+
+user delete
+```bash
+$ kubefate user delete <userUUID>
+```

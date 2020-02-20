@@ -29,7 +29,7 @@ func MapToConfig(m map[string]interface{}, templates string) (string, error) {
 	return s, nil
 
 }
-func Config() error {
+func Conf() error {
 
 	values, err := ioutil.ReadFile("E:/machenlong/AI/gitlab/fate-cloud-agent/values.yaml")
 	if err != nil {

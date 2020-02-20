@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - image: slelove/kubefate
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: kubefate
           env:
             - name: FATECLOUD_MONGO_URL
@@ -61,3 +61,20 @@ spec:
   type: NodePort
   selector:
     fate: kubefate
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kubefate
+  namespace: kubefate
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: kubefate.net
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: kubefate
+              servicePort: 8080

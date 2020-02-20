@@ -12,26 +12,16 @@ func initCommandLine() *cli.App {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
-				Value: "",
+				Value: "n",
 				Usage: "fate name",
-			},
-			&cli.StringFlag{
-				Name:  "config",
-				Value: "",
-				Usage: "kube config",
-			}, &cli.StringFlag{
-				Name:  "chart",
-				Value: "",
-				Usage: "chart path",
 			},
 		},
 		Commands: []*cli.Command{
 			serviceCommand(),
+			ClusterCommand(),
+			JobCommand(),
+			UserCommand(),
 			configCommand(),
-			installCommand(),
-			listCommand(),
-			getCommand(),
-			deleteCommand(),
 		},
 	}
 

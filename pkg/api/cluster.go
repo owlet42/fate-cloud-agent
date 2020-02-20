@@ -24,6 +24,7 @@ func (c *Cluster) Router(r *gin.RouterGroup) {
 		cluster.GET("/:clusterId", c.getCluster)
 		cluster.DELETE("/:clusterId", c.deleteCluster)
 	}
+	log.Debug().Str("basePath",cluster.BasePath()).Msg("cluster router")
 }
 
 func (_ *Cluster) createCluster(c *gin.Context) {

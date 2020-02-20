@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -11,8 +12,8 @@ import (
 
 type Job struct {
 	Uuid      string    `json:"uuid"`
-	StartTime string    `json:"start_time"`
-	EndTime   string    `json:"end_time"`
+	StartTime string `json:"start_time"`
+	EndTime   string `json:"end_time"`
 	Method    string    `json:"method"`
 	Result    string    `json:"result"`
 	ClusterId string    `json:"cluster_id"`
@@ -43,6 +44,7 @@ const (
 
 func (s JobStatus) String() string {
 	names := []string{
+		"Pending",
 		"Running",
 		"Success",
 		"Failed",
@@ -54,11 +56,28 @@ func (s JobStatus) String() string {
 	return names[s]
 }
 
-func (s JobStatus) MarshalJSON() ([]byte, error) {
+func (s *JobStatus) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	buffer.WriteString(s.String())
 	buffer.WriteString(`"`)
 	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON sets *m to a copy of data.
+func (s *JobStatus) UnmarshalJSON(data []byte) error {
+	names := map[string]JobStatus{
+		"Pending":  Pending_j,
+		"Running":  Running_j,
+		"Success":  Success_j,
+		"Failed":   Failed_j,
+		"Retry":    Retry_j,
+		"Timeout":  Timeout_j,
+		"Canceled": Canceled_j,
+	}
+
+	JobStatus := names[fmt.Sprint(data)]
+	s = &JobStatus
+	return nil
 }
 
 func NewJob(method string, creator string) *Job {
@@ -68,7 +87,7 @@ func NewJob(method string, creator string) *Job {
 		Method:    method,
 		Creator:   creator,
 		StartTime: time.Now().String(),
-		Status:    Running_j,
+		Status:    Pending_j,
 	}
 
 	return job
@@ -82,7 +101,7 @@ func (job *Job) GetUuid() string {
 	return job.Uuid
 }
 
-func (job *Job) FromBson(m *bson.M) (interface{},error) {
+func (job *Job) FromBson(m *bson.M) (interface{}, error) {
 	bsonBytes, err := bson.Marshal(m)
 	if err != nil {
 		return nil, err
@@ -91,7 +110,7 @@ func (job *Job) FromBson(m *bson.M) (interface{},error) {
 	if err != nil {
 		return nil, err
 	}
-	return *job,nil
+	return *job, nil
 }
 
 //

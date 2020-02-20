@@ -15,10 +15,12 @@ log:
 
 chart:
   repository: "https://owlet42.github.io/helm-chart/" # chart url https://example.com/charts/fate-1.2.0.tgz
-
+  name: "fate"
 # TODO
 # persistent layer
 
 user:
   username: admin
   password: admin
+
+serviceurl: 127.0.0.1:8080

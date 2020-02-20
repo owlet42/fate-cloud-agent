@@ -100,3 +100,4 @@ func initAuthmiddleware() error {
 	AuthMiddleware = tmpAuth
 	return err
 }
+

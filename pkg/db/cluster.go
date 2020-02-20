@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,7 +33,7 @@ const (
 	Creating_c ClusterStatus = iota
 	Deleting_c
 	Updating_c
-	Available_c
+	Running_c
 	Unavailable_c
 )
 
@@ -49,11 +50,26 @@ func (s ClusterStatus) String() string {
 }
 
 // MarshalJSON convert cluster status to string
-func (s ClusterStatus) MarshalJSON() ([]byte, error) {
+func (s *ClusterStatus) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	buffer.WriteString(s.String())
 	buffer.WriteString(`"`)
 	return buffer.Bytes(), nil
+}
+
+// UnmarshalJSON sets *m to a copy of data.
+func (s *ClusterStatus) UnmarshalJSON(data []byte) error {
+	names := map[string]ClusterStatus{
+		"Creating":    Creating_c,
+		"Deleting":    Deleting_c,
+		"Updating":    Updating_c,
+		"Running":     Running_c,
+		"Unavailable": Unavailable_c,
+	}
+
+	ClusterStatus := names[fmt.Sprint(data)]
+	s = &ClusterStatus
+	return nil
 }
 
 func (cluster *Cluster) getCollection() string {
