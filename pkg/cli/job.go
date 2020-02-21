@@ -5,10 +5,8 @@ import (
 	"fate-cloud-agent/pkg/db"
 	"fmt"
 	"github.com/gosuri/uitable"
-	"github.com/rs/zerolog/log"
 	"helm.sh/helm/v3/pkg/cli/output"
 	"os"
-	"time"
 )
 
 type Job struct {
@@ -80,15 +78,7 @@ func (c *Job) outPutList(result interface{}) error {
 	table := uitable.New()
 	table.AddRow("UUID", "CREATOR", "STARTTIME", "ENDTIME", "STATUS", "CLUSTERID", "RESULT")
 	for _, r := range item.Data {
-		StartTime, err := time.ParseInLocation("2006-01-02 15:04:05", r.StartTime, time.Local)
-		if err != nil {
-			log.Err(err).Msg("startTime err")
-		}
-		EndTime, err := time.ParseInLocation("2006-01-02 15:04:05", r.EndTime, time.Local)
-		if err != nil {
-			log.Err(err).Msg("endTime err")
-		}
-		table.AddRow(r.Uuid, r.Creator, StartTime, EndTime, r.Status, r.ClusterId, r.Result)
+		table.AddRow(r.Uuid, r.Creator, r.StartTime.Format("2006-01-02 15:04:05"), r.EndTime.Format("2006-01-02 15:04:05"), r.Status, r.ClusterId, r.Result)
 	}
 
 	return output.EncodeTable(os.Stdout, table)
