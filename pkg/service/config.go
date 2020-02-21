@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
+	"k8s.io/client-go/rest"
 	"os"
 	"strings"
 	"text/template"
@@ -83,4 +84,17 @@ func funcMap() template.FuncMap {
 	delete(f, "expandenv")
 
 	return f
+}
+
+func InitKubeConfig() error {
+	// creates the in-cluster config
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile("~/.kube/config", []byte(config.String()), os.ModeAppend)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -25,8 +25,8 @@ func InitConfigForTest() {
 func TestMsa(t *testing.T) {
 
 	d := ClusterArgs{
-		Name:      "fate-8888",
-		Namespace: "fate-8888",
+		Name:      "fate-10000",
+		Namespace: "fate-10000",
 		Version:   "V1.2.0",
 		Data:      []byte(`{ "partyId":10000,"endpoint": { "ip":"10.184.111.187","port":30000}}`),
 	}

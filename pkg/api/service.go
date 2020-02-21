@@ -21,10 +21,15 @@ func initUser() {
 // Run starts the API server
 func Run() {
 	initUser()
+	//err := service.InitKubeConfig()
+	//if err != nil {
+	//	panic(err)
+	//}
 	err := service.RepoAddAndUpdate()
 	if err != nil {
 		panic(err)
 	}
+
 	// use gin.New() instead
 	r := gin.New()
 

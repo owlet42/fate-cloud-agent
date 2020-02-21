@@ -24,6 +24,7 @@ spec:
       labels:
         fate: kubefate
     spec:
+      serviceAccount: kubefate-admin
       containers:
         - image: slelove/kubefate
           imagePullPolicy: Always

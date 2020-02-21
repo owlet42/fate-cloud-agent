@@ -78,7 +78,7 @@ func (c *Job) outPutList(result interface{}) error {
 	table := uitable.New()
 	table.AddRow("UUID", "CREATOR", "STARTTIME", "ENDTIME", "STATUS", "CLUSTERID", "RESULT")
 	for _, r := range item.Data {
-		table.AddRow(r.Uuid, r.Creator, r.StartTime.Format("2006-01-02 15:04:05"), r.EndTime.Format("2006-01-02 15:04:05"), r.Status, r.ClusterId, r.Result)
+		table.AddRow(r.Uuid[0:8], r.Creator, r.StartTime.Format("2006-01-02 15:04:05"), r.EndTime.Format("2006-01-02 15:04:05"), r.Status, r.ClusterId[0:8], r.Result)
 	}
 
 	return output.EncodeTable(os.Stdout, table)

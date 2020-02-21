@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
-	"helm.sh/helm/v3/pkg/kube"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 func GetPod() {
@@ -25,11 +25,26 @@ func GetPod() {
 	//if err := cfg.KubeClient.IsReachable(); err != nil {
 	//	fmt.Println(err)
 	//}
-	configFlags := kube.GetConfig("", "", "")
-	config, _ := configFlags.ToRESTConfig()
-	//config, _ := settings.RESTClientGetter().ToRESTConfig()
 
+	// creates the in-cluster config
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		fmt.Println(err)
+	}
+	config.String()
+
+	// creates the clientset
 	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//
+	//	configFlags := kube.GetConfig("", "", "")
+	//config, _ := configFlags.ToRESTConfig()
+	////config, _ := settings.RESTClientGetter().ToRESTConfig()
+	//
+	//clientset, err := kubernetes.NewForConfig(config)
 
 	if err != nil {
 		fmt.Println(err)
