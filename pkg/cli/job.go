@@ -5,6 +5,7 @@ import (
 	"fate-cloud-agent/pkg/db"
 	"fmt"
 	"github.com/gosuri/uitable"
+	"github.com/rs/zerolog/log"
 	"helm.sh/helm/v3/pkg/cli/output"
 	"os"
 )
@@ -40,7 +41,7 @@ func (c *Job) getResult(Type int) (result interface{}, err error) {
 		result = new(JobResultList)
 	case INFO:
 		result = new(JobResult)
-	case MSG:
+	case MSG, JOB:
 		result = new(JobResultMsg)
 	case ERROR:
 		result = new(JobResultErr)
@@ -56,7 +57,7 @@ func (c *Job) outPut(result interface{}, Type int) error {
 		return c.outPutList(result)
 	case INFO:
 		return c.outPutInfo(result)
-	case MSG:
+	case MSG, JOB:
 		return c.outPutMsg(result)
 	case ERROR:
 		return c.outPutErr(result)
@@ -72,13 +73,13 @@ func (c *Job) outPutList(result interface{}) error {
 	}
 	item, ok := result.(*JobResultList)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type jobResultList not ok")
 	}
 
 	table := uitable.New()
-	table.AddRow("UUID", "CREATOR", "STARTTIME", "ENDTIME", "STATUS", "CLUSTERID", "RESULT")
+	table.AddRow("UUID", "CREATOR", "STARTTIME", "ENDTIME", "STATUS", "CLUSTERID")
 	for _, r := range item.Data {
-		table.AddRow(r.Uuid, r.Creator, r.StartTime.Format("2006-01-02 15:04:05"), r.EndTime.Format("2006-01-02 15:04:05"), r.Status, r.ClusterId, r.Result)
+		table.AddRow(r.Uuid, r.Creator, r.StartTime.Format("2006-01-02 15:04:05"), r.EndTime.Format("2006-01-02 15:04:05"), r.Status.String(), r.ClusterId)
 	}
 
 	return output.EncodeTable(os.Stdout, table)
@@ -88,9 +89,9 @@ func (c *Job) outPutMsg(result interface{}) error {
 	if result == nil {
 		return errors.New("no out put data")
 	}
-	item, ok := result.(*JobResult)
+	item, ok := result.(*JobResultMsg)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type JobResultMsg not ok")
 	}
 
 	_, err := fmt.Fprintf(os.Stdout, "%s", item.Msg)
@@ -104,7 +105,7 @@ func (c *Job) outPutErr(result interface{}) error {
 	}
 	item, ok := result.(*JobResultErr)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type jobResultErr not ok")
 	}
 
 	_, err := fmt.Fprintf(os.Stdout, "%s", item.Error)
@@ -116,24 +117,26 @@ func (c *Job) outPutInfo(result interface{}) error {
 	if result == nil {
 		return errors.New("no out put data")
 	}
-
+	fmt.Printf("%+v", result)
 	item, ok := result.(*JobResult)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type jobResult not ok")
 	}
+	fmt.Printf("%+v", item.Data)
+	job := item.Data
 
-	cluster := item.Data
+	log.Debug().Interface("job", job).Msg("job info")
 
 	table := uitable.New()
 
-	table.AddRow("UUID", cluster.Uuid)
-	table.AddRow("StartTime", cluster.StartTime)
-	table.AddRow("EndTime", cluster.EndTime)
-	table.AddRow("Status", cluster.Status)
-	table.AddRow("Creator", cluster.Creator)
-	table.AddRow("ClusterId", cluster.ClusterId)
-	table.AddRow("Result", cluster.Result)
-	table.AddRow("SubJobs", cluster.SubJobs)
+	table.AddRow("UUID", job.Uuid)
+	table.AddRow("StartTime", job.StartTime)
+	table.AddRow("EndTime", job.EndTime)
+	table.AddRow("Status", job.Status.String())
+	table.AddRow("Creator", job.Creator)
+	table.AddRow("ClusterId", job.ClusterId)
+	table.AddRow("Result", job.Result)
+	table.AddRow("SubJobs", job.SubJobs)
 
 	return output.EncodeTable(os.Stdout, table)
 }

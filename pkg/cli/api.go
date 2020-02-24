@@ -11,6 +11,7 @@ const (
 	INFO
 	ERROR
 	MSG
+	JOB
 )
 
 type Item interface {
@@ -30,15 +31,29 @@ func postItem(i Item, Body []byte) error {
 	if err != nil {
 		return err
 	}
-
-	msg, err := i.getResult(INFO)
+	if rep.Code != 200 {
+		msg, err := i.getResult(ERROR)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(rep.Body, &msg)
+		if err != nil {
+			return err
+		}
+		err = i.outPut(msg, ERROR)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	msg, err := i.getResult(JOB)
 
 	err = json.Unmarshal(rep.Body, &msg)
 	if err != nil {
 		return err
 	}
 
-	err = i.outPut(msg, INFO)
+	err = i.outPut(msg, JOB)
 	if err != nil {
 		return err
 	}
@@ -55,15 +70,29 @@ func putItem(i Item, Body []byte) error {
 	if err != nil {
 		return err
 	}
-
-	msg, err := i.getResult(INFO)
+	if rep.Code != 200 {
+		msg, err := i.getResult(ERROR)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(rep.Body, &msg)
+		if err != nil {
+			return err
+		}
+		err = i.outPut(msg, ERROR)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	msg, err := i.getResult(JOB)
 
 	err = json.Unmarshal(rep.Body, &msg)
 	if err != nil {
 		return err
 	}
 
-	err = i.outPut(msg, INFO)
+	err = i.outPut(msg, JOB)
 	if err != nil {
 		return err
 	}
@@ -80,6 +109,22 @@ func getItem(i Item, UUID string) error {
 	rep, err := Send(req)
 	if err != nil {
 		return err
+	}
+
+	if rep.Code != 200 {
+		msg, err := i.getResult(ERROR)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(rep.Body, &msg)
+		if err != nil {
+			return err
+		}
+		err = i.outPut(msg, ERROR)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	msg, err := i.getResult(INFO)
@@ -106,6 +151,22 @@ func getItemList(i Item) error {
 	rep, err := Send(req)
 	if err != nil {
 		return err
+	}
+
+	if rep.Code != 200 {
+		msg, err := i.getResult(ERROR)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(rep.Body, &msg)
+		if err != nil {
+			return err
+		}
+		err = i.outPut(msg, ERROR)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	msg, err := i.getResult(LIST)
@@ -136,7 +197,23 @@ func deleteItem(i Item, UUID string) error {
 		return err
 	}
 
-	msg, err := i.getResult(MSG)
+	if rep.Code != 200 {
+		msg, err := i.getResult(ERROR)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(rep.Body, &msg)
+		if err != nil {
+			return err
+		}
+		err = i.outPut(msg, ERROR)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	msg, err := i.getResult(JOB)
 	if err != nil {
 		return err
 	}
@@ -145,7 +222,7 @@ func deleteItem(i Item, UUID string) error {
 		return err
 	}
 
-	err = i.outPut(msg, MSG)
+	err = i.outPut(msg, JOB)
 	if err != nil {
 		return err
 	}

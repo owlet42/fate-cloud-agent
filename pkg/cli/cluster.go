@@ -20,7 +20,10 @@ type ClusterResultList struct {
 	Data []*db.Cluster
 	Msg  string
 }
-
+type ClusterJobResult struct {
+	Data *db.Job
+	Msg  string
+}
 type ClusterResult struct {
 	Data *db.Cluster
 	Msg  string
@@ -44,6 +47,8 @@ func (c *Cluster) getResult(Type int) (result interface{}, err error) {
 		result = new(ClusterResultMsg)
 	case ERROR:
 		result = new(ClusterResultErr)
+	case JOB:
+		result = new(ClusterJobResult)
 	default:
 		err = fmt.Errorf("no type %d", Type)
 	}
@@ -60,6 +65,8 @@ func (c *Cluster) outPut(result interface{}, Type int) error {
 		return c.outPutMsg(result)
 	case ERROR:
 		return c.outPutErr(result)
+	case JOB:
+		return c.outPutJob(result)
 	default:
 		return fmt.Errorf("no type %d", Type)
 	}
@@ -70,10 +77,13 @@ func (c *Cluster) outPutList(result interface{}) error {
 	if result == nil {
 		return errors.New("no out put data")
 	}
-
+	item, ok := result.(*ClusterResultList)
+	if !ok {
+		return errors.New("type ClusterResultList not ok")
+	}
 	table := uitable.New()
 	table.AddRow("UUID", "NAME", "NAMESPACE", "REVISION", "STATUS", "CHART", "APP VERSION")
-	for _, r := range result.(*ClusterResultList).Data {
+	for _, r := range item.Data {
 		table.AddRow(r.Uuid, r.Name, r.NameSpaces, r.Version, r.Status, r.ChartName, r.ChartVersion)
 	}
 	return output.EncodeTable(os.Stdout, table)
@@ -83,9 +93,9 @@ func (c *Cluster) outPutMsg(result interface{}) error {
 	if result == nil {
 		return errors.New("no out put data")
 	}
-	item, ok := result.(*ClusterResult)
+	item, ok := result.(*ClusterResultMsg)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type ClusterResultMsg not ok")
 	}
 
 	_, err := fmt.Fprintf(os.Stdout, "%s", item.Msg)
@@ -99,7 +109,7 @@ func (c *Cluster) outPutErr(result interface{}) error {
 	}
 	item, ok := result.(*ClusterResultErr)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type ClusterResultErr not ok")
 	}
 
 	_, err := fmt.Fprintf(os.Stdout, "%s", item.Error)
@@ -114,7 +124,7 @@ func (c *Cluster) outPutInfo(result interface{}) error {
 
 	item, ok := result.(*ClusterResult)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type ClusterResult not ok")
 	}
 
 	cluster := item.Data
@@ -130,8 +140,21 @@ func (c *Cluster) outPutInfo(result interface{}) error {
 	table.AddRow("Values", cluster.Values)
 	table.AddRow("ChartName", cluster.ChartName)
 	table.AddRow("ChartVersion", cluster.ChartVersion)
-	table.AddRow("Backend", cluster.Backend)
-	table.AddRow("BootstrapParties", cluster.BootstrapParties)
+	//table.AddRow("Backend", cluster.Backend)
+	//table.AddRow("BootstrapParties", cluster.BootstrapParties)
 
 	return output.EncodeTable(os.Stdout, table)
+}
+
+func (c *Cluster) outPutJob(result interface{}) error {
+	if result == nil {
+		return errors.New("no out put data")
+	}
+
+	item, ok := result.(*ClusterJobResult)
+	if !ok {
+		return errors.New("type ClusterResult not ok")
+	}
+	fmt.Printf("create job success, job id=%s\n", item.Data.Uuid)
+	return nil
 }

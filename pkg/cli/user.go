@@ -40,7 +40,7 @@ func (c *User) getResult(Type int) (result interface{}, err error) {
 		result = new(UserResultList)
 	case INFO:
 		result = new(UserResult)
-	case MSG:
+	case MSG, JOB:
 		result = new(UserResultMsg)
 	case ERROR:
 		result = new(UserResultErr)
@@ -56,14 +56,13 @@ func (c *User) outPut(result interface{}, Type int) error {
 		return c.outPutList(result)
 	case INFO:
 		return c.outPutInfo(result)
-	case MSG:
+	case MSG, JOB:
 		return c.outPutMsg(result)
 	case ERROR:
 		return c.outPutErr(result)
 	default:
 		return fmt.Errorf("no type %d", Type)
 	}
-	return nil
 }
 
 func (c *User) outPutList(result interface{}) error {
@@ -72,7 +71,7 @@ func (c *User) outPutList(result interface{}) error {
 	}
 	item, ok := result.(*UserResultList)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type userResultList not ok")
 	}
 
 	table := uitable.New()
@@ -87,9 +86,9 @@ func (c *User) outPutMsg(result interface{}) error {
 	if result == nil {
 		return errors.New("no out put data")
 	}
-	item, ok := result.(*UserResult)
+	item, ok := result.(*UserResultMsg)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type UserResultMsg not ok")
 	}
 
 	_, err := fmt.Fprintf(os.Stdout, "%s", item.Msg)
@@ -103,7 +102,7 @@ func (c *User) outPutErr(result interface{}) error {
 	}
 	item, ok := result.(*UserResultErr)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type userResultErr not ok")
 	}
 
 	_, err := fmt.Fprintf(os.Stdout, "%s", item.Error)
@@ -118,7 +117,7 @@ func (c *User) outPutInfo(result interface{}) error {
 
 	item, ok := result.(*UserResult)
 	if !ok {
-		return errors.New("not ok")
+		return errors.New("type UserResult not ok")
 	}
 
 	user := item.Data
