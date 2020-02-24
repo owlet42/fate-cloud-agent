@@ -59,7 +59,7 @@ func Find(repository Repository) ([]interface{}, error) {
 			return nil, err
 		}
 		// Convert bson.M to struct
-		r,err := repository.FromBson(&result)
+		r, err := repository.FromBson(&result)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -95,7 +95,43 @@ func FindByUUID(repository Repository, uuid string) (interface{}, error) {
 			return nil, err
 		}
 		// Convert bson.M to struct
-		r,err = repository.FromBson(&result)
+		r, err = repository.FromBson(&result)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+	}
+	return r, nil
+}
+
+// FindByUUID find the object from the database via uuid
+func FindByName(repository Repository, name string, namespace string) (interface{}, error) {
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	collection := db.Collection(repository.getCollection())
+
+	filter := bson.M{"name": name, "namespace": namespace}
+	cur, err := collection.Find(ctx, filter)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var r interface{}
+	for cur.Next(ctx) {
+		// Decode to bson map
+		var result bson.M
+		err := cur.Decode(&result)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		// Convert bson.M to struct
+		r, err = repository.FromBson(&result)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -129,7 +165,7 @@ func FindOneByUUID(repository Repository, uuid string) (interface{}, error) {
 		return nil, err
 	}
 	// Convert bson.M to struct
-	r,err = repository.FromBson(&result)
+	r, err = repository.FromBson(&result)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -144,7 +180,7 @@ func UpdateByUUID(repository Repository, uuid string) error {
 	db, err := ConnectDb()
 	if err != nil {
 		log.Println(err)
-		return  err
+		return err
 	}
 	collection := db.Collection(repository.getCollection())
 	doc, err := ToDoc(repository)
@@ -246,7 +282,7 @@ func FindByFilter(repository Repository, filter bson.M) ([]interface{}, error) {
 			return nil, err
 		}
 		// Convert bson.M to struct
-		r,err := repository.FromBson(&result)
+		r, err := repository.FromBson(&result)
 		if err != nil {
 			log.Println(err)
 			return nil, err

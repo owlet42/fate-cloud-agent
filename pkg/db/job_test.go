@@ -43,7 +43,7 @@ func TestUpdateStatusByUUID(t *testing.T) {
 	if error == nil {
 		job2Update := result.(Job)
 		job2Update.Status = Success_j
-		job2Update.EndTime = time.Now().String()
+		job2Update.EndTime = time.Now()
 		UpdateByUUID(&job2Update, jobJustAddedUuid)
 	}
 	result, error = FindByUUID(job, jobJustAddedUuid)
@@ -105,30 +105,9 @@ func TestFindJobByUUID(t *testing.T) {
 		{
 			name: "find no db",
 			args: args{
-				uuid: "11677165-bd6e-421b-9a79-c75b2670c133",
+				uuid: "cd2a7af8-6c4b-4820-ad2b-f862b2c9047b",
 			},
 			wantErr: true,
-		},
-		{
-			name: "find in db",
-			args: args{
-				uuid: "c21f2071-8ee6-46ad-9204-5d241ba29507",
-			},
-			wantErr: false,
-		},
-		{
-			name: "find in db",
-			args: args{
-				uuid: "191315be-ed0f-407d-b7cf-3a354d723637",
-			},
-			wantErr: false,
-		},
-		{
-			name: "find in db",
-			args: args{
-				uuid: "674a1fd4-7306-4e8c-8017-ba5be98c2037",
-			},
-			wantErr: false,
 		},
 	}
 	for _, tt := range tests {

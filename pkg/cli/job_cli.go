@@ -43,8 +43,8 @@ func JobDeleteCommand() *cli.Command {
 		},
 		Usage: "show job list",
 		Action: func(c *cli.Context) error {
+			uuid:= c.Args().Get(0)
 			cluster := new(Job)
-			uuid := c.String("uuid")
 			return deleteItem(cluster, uuid)
 		},
 	}
@@ -63,7 +63,7 @@ func JobInfoCommand() *cli.Command {
 		Usage: "show job info",
 		Action: func(c *cli.Context) error {
 			// todo uuid get
-			uuid := c.String("uuid")
+			uuid:= c.Args().Get(0)
 			Job := new(Job)
 			return getItem(Job, uuid)
 		},

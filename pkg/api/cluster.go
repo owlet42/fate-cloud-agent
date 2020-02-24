@@ -24,10 +24,12 @@ func (c *Cluster) Router(r *gin.RouterGroup) {
 		cluster.GET("/:clusterId", c.getCluster)
 		cluster.DELETE("/:clusterId", c.deleteCluster)
 	}
-	log.Debug().Str("basePath",cluster.BasePath()).Msg("cluster router")
+	log.Debug().Str("basePath", cluster.BasePath()).Msg("cluster router")
 }
 
 func (_ *Cluster) createCluster(c *gin.Context) {
+
+	user, _ := c.Get(identityKey)
 
 	clusterArgs := new(job.ClusterArgs)
 
@@ -37,9 +39,8 @@ func (_ *Cluster) createCluster(c *gin.Context) {
 	}
 	log.Debug().Interface("parameters", clusterArgs).Msg("parameters")
 
-
 	// create job and use goroutine do job result save to db
-	j,err := job.ClusterInstall(clusterArgs)
+	j, err := job.ClusterInstall(clusterArgs, user.(*User).Username)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -49,15 +50,26 @@ func (_ *Cluster) createCluster(c *gin.Context) {
 
 func (_ *Cluster) setCluster(c *gin.Context) {
 
-	cluster := new(db.Cluster)
-	if err := c.ShouldBindJSON(&cluster); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	//cluster := new(db.Cluster)
+	//if err := c.ShouldBindJSON(&cluster); err != nil {
+	//	c.JSON(400, gin.H{"error": err.Error()})
+	//	return
+	//}
+
+	clusterArgs := new(job.ClusterArgs)
+
+	if err := c.ShouldBindJSON(&clusterArgs); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.Debug().Interface("parameters", clusterArgs).Msg("parameters")
 
 	// create job and use goroutine do job result save to db
-	j := job.ClusterUpdate(cluster)
-
+	j, err := job.ClusterUpdate(clusterArgs)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(200, gin.H{"msg": "setCluster success", "data": j})
 }
 

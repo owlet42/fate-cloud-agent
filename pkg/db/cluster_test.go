@@ -105,7 +105,7 @@ func TestFindClusterFindByUUID(t *testing.T) {
 		{
 			name:    "test",
 			args:    args{
-				uuid: "2f41aabe-1610-4e4a-bc1c-9b24e9f8ec11",
+				uuid: "a42d9679-7f44-47a6-a42a-89e3bedacd1f",
 			},
 			want:    &Cluster{
 				Uuid:       "2f41aabe-1610-4e4a-bc1c-9b24e9f8ec11",

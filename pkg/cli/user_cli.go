@@ -18,7 +18,7 @@ func UserCommand() *cli.Command {
 			UserListCommand(),
 			UserInfoCommand(),
 		},
-		Usage:  "add a task to the list",
+		Usage: "add a task to the list",
 	}
 }
 
@@ -48,11 +48,9 @@ func UserInfoCommand() *cli.Command {
 		Usage: "show User info",
 		Action: func(c *cli.Context) error {
 			// todo uuid get
-			uuid := c.String("uuid")
+			uuid := c.Args().Get(0)
 			User := new(User)
 			return getItem(User, uuid)
 		},
 	}
 }
-
-

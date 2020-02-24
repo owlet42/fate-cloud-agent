@@ -16,7 +16,7 @@ log:
 # chart
 repo:
   name: "kubefate"
-  url: "https://owlet42.github.io/helm-chart/" # chart url https://example.com/charts/fate-1.2.0.tgz
+  url: "https://owlet42.github.io/helm-chart/" # chart url https://example.com/charts/index.yaml
   username: ""
   password: ""
 

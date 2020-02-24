@@ -13,7 +13,7 @@ require (
 	github.com/golang/protobuf v1.3.3 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/gosuri/uitable v0.0.1
-	github.com/json-iterator/go v1.1.9 // indirect
+	github.com/json-iterator/go v1.1.9
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/pkg/errors v0.8.1

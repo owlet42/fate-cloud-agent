@@ -75,35 +75,7 @@ func TestClusterInstall(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ClusterInstall() = %v, want %v", got, tt.want)
 			}
-			time.Sleep(30 * time.Second)
-		})
-	}
-}
-
-func TestClusterUpdate(t *testing.T) {
-	InitConfigForTest()
-	type args struct {
-		cluster *db.Cluster
-	}
-	tests := []struct {
-		name string
-		args args
-		want *db.Job
-	}{
-		// TODO: Add test cases.
-		{
-			name: "",
-			args: args{
-				cluster: nil,
-			},
-			want: nil,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ClusterUpdate(tt.args.cluster); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ClusterUpdate() = %v, want %v", got, tt.want)
-			}
+			time.Sleep(60 * time.Second)
 		})
 	}
 }

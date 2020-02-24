@@ -126,6 +126,23 @@ func ClusterFindByUUID(uuid string) (*Cluster, error) {
 	return &Cluster, nil
 }
 
+// ClusterFindByUUID get cluster from via uuid
+func ClusterFindByName(name, namespace string) (*Cluster, error) {
+	result, err := FindByName(new(Cluster), name, namespace)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil {
+		return nil, errors.New("cluster no find")
+	}
+	Cluster, ok := result.([]*Cluster)
+	if !ok {
+		return nil, errors.New("assertion type error")
+	}
+	log.Debug().Interface("Cluster", Cluster).Msg("find Cluster success")
+	return Cluster[0], nil
+}
+
 // FindClusterList get all cluster list
 func FindClusterList(args string) ([]*Cluster, error) {
 

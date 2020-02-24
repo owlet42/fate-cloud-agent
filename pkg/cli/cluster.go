@@ -74,7 +74,7 @@ func (c *Cluster) outPutList(result interface{}) error {
 	table := uitable.New()
 	table.AddRow("UUID", "NAME", "NAMESPACE", "REVISION", "STATUS", "CHART", "APP VERSION")
 	for _, r := range result.(*ClusterResultList).Data {
-		table.AddRow(r.Uuid[0:8], r.Name, r.NameSpaces, r.Version, r.Status, r.ChartName, r.ChartVersion)
+		table.AddRow(r.Uuid, r.Name, r.NameSpaces, r.Version, r.Status, r.ChartName, r.ChartVersion)
 	}
 	return output.EncodeTable(os.Stdout, table)
 }
