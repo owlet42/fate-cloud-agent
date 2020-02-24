@@ -51,8 +51,10 @@ spec:
           env:
             - name: FATECLOUD_MONGO_URL
               value: "mongo:27017"
-            - name: FATECLOUD_SERVER_ADDRESS
-              value: "0.0.0.0"
+            - name: FATECLOUD_REPO_NAME
+              value: "kubefate"
+            - name: FATECLOUD_REPO_URL
+              value: "https://owlet42.github.io/helm-chart/"
           ports:
             - containerPort: 8080
       restartPolicy: Always
