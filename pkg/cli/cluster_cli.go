@@ -5,6 +5,7 @@ import (
 	"github.com/json-iterator/go"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+
 	"sigs.k8s.io/yaml"
 
 	"io/ioutil"
@@ -15,21 +16,6 @@ func ClusterCommand() *cli.Command {
 	return &cli.Command{
 		Name: "cluster",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "install",
-				Value: "",
-				Usage: "fate name",
-			},
-			&cli.StringFlag{
-				Name:  "namespace",
-				Value: "",
-				Usage: "k8s Namespace",
-			},
-			&cli.StringFlag{
-				Name:  "chart",
-				Value: "",
-				Usage: "chart path",
-			},
 		},
 		Subcommands: []*cli.Command{
 			ClusterListCommand(),
@@ -60,15 +46,15 @@ func ClusterInfoCommand() *cli.Command {
 	return &cli.Command{
 		Name: "describe",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "uuid",
-				Value: "",
-				Usage: "uuid",
-			},
 		},
 		Usage: "show cluster info",
 		Action: func(c *cli.Context) error {
-			uuid := c.Args().Get(0)
+			var uuid string
+			if c.Args().Len() > 0 {
+				uuid = c.Args().Get(0)
+			} else {
+				return errors.New("not uuid")
+			}
 			cluster := new(Cluster)
 			return getItem(cluster, uuid)
 		},
@@ -83,7 +69,14 @@ func ClusterDeleteCommand() *cli.Command {
 		},
 		Usage: "cluster delete",
 		Action: func(c *cli.Context) error {
-			uuid := c.Args().Get(0)
+			var uuid string
+			if c.Args().Len() > 0 {
+				uuid = c.Args().Get(0)
+			} else {
+				return errors.New("not uuid")
+			}
+
+
 			cluster := new(Cluster)
 			log.Debug().Str("uuid", uuid).Msg("cluster delete uuid")
 			return deleteItem(cluster, uuid)
@@ -104,7 +97,7 @@ func ClusterInstallCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:    "namespace",
 				Aliases: []string{"n"},
-				Value:   "fate-" + rand.String(4),
+				Value:   "",
 				Usage:   "k8s namespace",
 			},
 			&cli.StringFlag{
@@ -123,6 +116,7 @@ func ClusterInstallCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
+			log.Debug().Str("yaml",string(valBY)).Msg("ReadFile success")
 			valBJ, err := yamlToJson(valBY)
 			if err != nil {
 				return err
@@ -169,7 +163,7 @@ func ClusterUpgradeCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:    "namespace",
 				Aliases: []string{"n"},
-				Value:   "fate-" + rand.String(4),
+				Value:   "",
 				Usage:   "k8s namespace",
 			},
 		},
@@ -182,6 +176,8 @@ func ClusterUpgradeCommand() *cli.Command {
 				return err
 			}
 
+			log.Debug().Str("yaml",string(valBY)).Msg("ReadFile success")
+
 			valBJ, err := yamlToJson(valBY)
 			if err != nil {
 				return err
@@ -190,7 +186,7 @@ func ClusterUpgradeCommand() *cli.Command {
 			if c.Args().Len() > 0 {
 				name = c.Args().Get(0)
 			} else {
-				return errors.New("cluster is required")
+				name = "fate-" + rand.String(4)
 			}
 
 			cluster := new(Cluster)
@@ -210,14 +206,14 @@ func ClusterUpgradeCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			return postItem(cluster, body)
+			return putItem(cluster, body)
 		},
 	}
 }
 
 func yamlToJson(bytes []byte) ([]byte, error) {
 	var m map[string]interface{}
-	err := yaml.Unmarshal(bytes, m)
+	err := yaml.Unmarshal(bytes, &m)
 	if err != nil {
 		return nil, err
 	}

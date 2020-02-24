@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"github.com/urfave/cli/v2"
 )
 
@@ -8,11 +9,6 @@ func UserCommand() *cli.Command {
 	return &cli.Command{
 		Name: "user",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "namespace",
-				Value: "",
-				Usage: "k8s Namespace",
-			},
 		},
 		Subcommands: []*cli.Command{
 			UserListCommand(),
@@ -24,7 +20,8 @@ func UserCommand() *cli.Command {
 
 func UserListCommand() *cli.Command {
 	return &cli.Command{
-		Name: "user",
+		Name:    "list",
+		Aliases: []string{"ls"},
 		Flags: []cli.Flag{
 		},
 		Usage: "show job list",
@@ -39,16 +36,15 @@ func UserInfoCommand() *cli.Command {
 	return &cli.Command{
 		Name: "describe",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "uuid",
-				Value: "",
-				Usage: "uuid",
-			},
 		},
 		Usage: "show User info",
 		Action: func(c *cli.Context) error {
-			// todo uuid get
-			uuid := c.Args().Get(0)
+			var uuid string
+			if c.Args().Len() > 0 {
+				uuid = c.Args().Get(0)
+			} else {
+				return errors.New("not uuid")
+			}
 			User := new(User)
 			return getItem(User, uuid)
 		},

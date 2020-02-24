@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"github.com/urfave/cli/v2"
 )
 
@@ -8,11 +9,6 @@ func JobCommand() *cli.Command {
 	return &cli.Command{
 		Name: "job",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "namespace",
-				Value: "",
-				Usage: "k8s Namespace",
-			},
 		},
 		Subcommands: []*cli.Command{
 			JobListCommand(),
@@ -26,6 +22,7 @@ func JobCommand() *cli.Command {
 func JobListCommand() *cli.Command {
 	return &cli.Command{
 		Name: "list",
+		Aliases: []string{"ls"},
 		Flags: []cli.Flag{
 		},
 		Usage: "show job list",
@@ -39,11 +36,17 @@ func JobListCommand() *cli.Command {
 func JobDeleteCommand() *cli.Command {
 	return &cli.Command{
 		Name: "delete",
+		Aliases: []string{"del"},
 		Flags: []cli.Flag{
 		},
 		Usage: "show job list",
 		Action: func(c *cli.Context) error {
-			uuid:= c.Args().Get(0)
+			var uuid string
+			if c.Args().Len() > 0 {
+				uuid = c.Args().Get(0)
+			} else {
+				return errors.New("not uuid")
+			}
 			cluster := new(Job)
 			return deleteItem(cluster, uuid)
 		},
@@ -62,8 +65,13 @@ func JobInfoCommand() *cli.Command {
 		},
 		Usage: "show job info",
 		Action: func(c *cli.Context) error {
-			// todo uuid get
-			uuid:= c.Args().Get(0)
+
+			var uuid string
+			if c.Args().Len() > 0 {
+				uuid = c.Args().Get(0)
+			} else {
+				return errors.New("not uuid")
+			}
 			Job := new(Job)
 			return getItem(Job, uuid)
 		},
