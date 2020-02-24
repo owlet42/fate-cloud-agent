@@ -34,7 +34,7 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 	//do job
 	go func() {
 		//create a cluster use parameter
-		cluster := db.NewCluster(clusterArgs.Name, clusterArgs.Namespace, clusterArgs.Version,
+		cluster := db.NewCluster(clusterArgs.Name, clusterArgs.Namespace,
 			db.ComputingBackend{}, db.Party{})
 		job.ClusterId = cluster.Uuid
 
@@ -51,6 +51,7 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 
 		if job.Status == db.Running_j {
 			cluster.Status = db.Creating_c
+			cluster.Version += 1
 			_, err = db.Save(cluster)
 			if err != nil {
 				log.Error().Err(err).Interface("cluster", cluster).Msg("save cluster error")
@@ -80,7 +81,8 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 				log.Error().Err(err).Interface("cluster", cluster).Msg("update cluster error")
 			}
 			log.Debug().Str("cluster uuid", cluster.Uuid).Msg("update cluster success")
-		} else {
+		}
+		if job.Status == db.Failed_j {
 			_, err = db.DeleteByUUID(cluster, job.ClusterId)
 			if err != nil {
 				log.Error().Err(err).Interface("cluster", cluster).Msg("delete cluster error")
@@ -125,6 +127,7 @@ func ClusterUpdate(clusterArgs *ClusterArgs) (*db.Job, error) {
 	go func() {
 
 		cluster.Status = db.Updating_c
+		cluster.Version += 1
 		err = db.UpdateByUUID(cluster, job.ClusterId)
 		if err != nil {
 			log.Error().Err(err).Interface("cluster", cluster).Msg("update cluster error")
@@ -260,13 +263,17 @@ func install(fc *db.Cluster, values []byte) error {
 	v.T = "json"
 
 	fc.ChartName = viper.GetString("repo.name") + "/fate"
-	fc.ChartVersion = fc.Version
 	fc.Values = string(values)
 
-	_, err := service.Install(fc.NameSpaces, fc.Name, fc.Version, v)
+	result, err := service.Install(fc.NameSpaces, fc.Name, fc.ChartVersion, v)
 	if err != nil {
 		return err
 	}
+
+	fc.ChartName = result.ChartName
+	fc.NameSpaces = result.Namespace
+	fc.ChartVersion = result.ChartVersion
+	fc.ChartValues = result.ChartValues
 
 	return nil
 }
@@ -276,7 +283,7 @@ func upgrade(fc *db.Cluster, values []byte) error {
 	v.Val = values
 	v.T = "json"
 
-	err := service.Upgrade(fc.NameSpaces, fc.Name, fc.Version, v)
+	err := service.Upgrade(fc.NameSpaces, fc.Name, fc.ChartVersion, v)
 	return err
 
 }
@@ -312,7 +319,7 @@ func Run(j Job) (*db.Job, error) {
 
 	go func() {
 		//create a cluster use parameter
-		cluster := db.NewCluster(clusterArgs.Name, clusterArgs.Namespace, clusterArgs.Version,
+		cluster := db.NewCluster(clusterArgs.Name, clusterArgs.Namespace,
 			db.ComputingBackend{}, db.Party{})
 		job.ClusterId = cluster.Uuid
 

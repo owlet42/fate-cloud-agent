@@ -57,7 +57,7 @@ func TestInstall(t *testing.T) {
 				t.Errorf("Install() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got.Name, tt.want.Name) && !reflect.DeepEqual(got.Namespace, tt.want.Namespace) && !reflect.DeepEqual(got.Status, tt.want.Status) {
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Install() = %v, want %v", got, tt.want)
 			}
 

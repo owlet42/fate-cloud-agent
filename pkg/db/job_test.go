@@ -2,6 +2,7 @@ package db
 
 import (
 	"fate-cloud-agent/pkg/utils/logging"
+	"reflect"
 	"testing"
 	"time"
 
@@ -103,11 +104,11 @@ func TestFindJobByUUID(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name: "find no db",
+			name: "find db",
 			args: args{
-				uuid: "cd2a7af8-6c4b-4820-ad2b-f862b2c9047b",
+				uuid: "0c4da2a9-562b-4ce0-a564-46e318a85061",
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -135,37 +136,16 @@ func TestJobDeleteByUUID(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name:    "test",
-			args:    args{
+			name: "test",
+			args: args{
 				uuid: "",
 			},
 			wantErr: true,
 		},
 		{
-			name:    "test",
-			args:    args{
-				uuid: "c21f2071-8ee6-46ad-9204-5d241ba29507",
-			},
-			wantErr: false,
-		},
-		{
-			name:    "test",
-			args:    args{
-				uuid: "191315be-ed0f-407d-b7cf-3a354d723637",
-			},
-			wantErr: false,
-		},
-		{
-			name:    "test",
-			args:    args{
-				uuid: "674a1fd4-7306-4e8c-8017-ba5be98c2037",
-			},
-			wantErr: false,
-		},
-		{
-			name:    "test",
-			args:    args{
-				uuid: "6195ab4f-2411-4c34-8d83-297373a02216",
+			name: "test",
+			args: args{
+				uuid: "2f75b214-6ea6-4cd6-9a52-14c4ceacb2b6",
 			},
 			wantErr: false,
 		},
@@ -174,6 +154,35 @@ func TestJobDeleteByUUID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := JobDeleteByUUID(tt.args.uuid); (err != nil) != tt.wantErr {
 				t.Errorf("JobDeleteByUUID() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestJobStatus_MarshalJSON(t *testing.T) {
+	tests := []struct {
+		name    string
+		s       JobStatus
+		want    []byte
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:    "",
+			s:       Running_j,
+			want:    []byte{34, 82, 117, 110, 110, 105, 110, 103, 34},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.s.MarshalJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("JobStatus.MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("JobStatus.MarshalJSON() = %s, want %s", got, tt.want)
 			}
 		})
 	}

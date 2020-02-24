@@ -14,9 +14,10 @@ type Cluster struct {
 	Name       string `json:"name"`
 	NameSpaces string `json:"namespaces"`
 	// Cluster version
-	Version string `json:"version"`
+	Version int `json:"version"`
 	// Helm chart version, example: fate v1.2.0
 	ChartVersion string `json:"chart_version"`
+	ChartValues  map[string]interface{}
 	// The value of this cluster for installing helm chart
 	Values           string                 `json:"values"`
 	ChartName        string                 `json:"chart_name"`
@@ -60,15 +61,15 @@ func (s *ClusterStatus) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON sets *m to a copy of data.
 func (s *ClusterStatus) UnmarshalJSON(data []byte) error {
 	names := map[string]ClusterStatus{
-		"Creating":    Creating_c,
-		"Deleting":    Deleting_c,
-		"Updating":    Updating_c,
-		"Running":     Running_c,
-		"Unavailable": Unavailable_c,
+		"\"Creating\"":    Creating_c,
+		"\"Deleting\"":    Deleting_c,
+		"\"Updating\"":    Updating_c,
+		"\"Running\"":     Running_c,
+		"\"Unavailable\"": Unavailable_c,
 	}
 
 	ClusterStatus := names[fmt.Sprint(data)]
-	s = &ClusterStatus
+	*s = ClusterStatus
 	return nil
 }
 
@@ -95,12 +96,12 @@ func (cluster *Cluster) FromBson(m *bson.M) (interface{}, error) {
 }
 
 // NewCluster create cluster object with basic argument
-func NewCluster(name string, nameSpaces string, version string, backend ComputingBackend, party Party) *Cluster {
+func NewCluster(name string, nameSpaces string, backend ComputingBackend, party Party) *Cluster {
 	cluster := &Cluster{
 		Uuid:             uuid.NewV4().String(),
 		Name:             name,
 		NameSpaces:       nameSpaces,
-		Version:          version,
+		Version:          0,
 		Status:           Creating_c,
 		Backend:          backend,
 		BootstrapParties: party,

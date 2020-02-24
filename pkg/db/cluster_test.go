@@ -1,8 +1,13 @@
 package db
 
 import (
+	"context"
+	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
+	"log"
 	"reflect"
 	"testing"
+	"time"
 )
 
 var clusterJustAddedUuid string
@@ -11,7 +16,7 @@ func TestNewCluster(t *testing.T) {
 	InitConfigForTest()
 	party := NewParty("9999", "192.168.0.1", "normal")
 	backend := NewComputingBackend("egg", "1")
-	fate := NewCluster("fate-cluster1", "fate-nameSpaces", "v1.2.0", *backend, *party)
+	fate := NewCluster("fate-cluster1", "fate-nameSpaces", *backend, *party)
 	clusterUuid, error := Save(fate)
 	if error == nil {
 		t.Log("uuid: ", clusterUuid)
@@ -95,23 +100,23 @@ func TestFindClusterFindByUUID(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name:    "test",
-			args:    args{
+			name: "test",
+			args: args{
 				uuid: "0",
 			},
 			want:    nil,
 			wantErr: true,
 		},
 		{
-			name:    "test",
-			args:    args{
+			name: "test",
+			args: args{
 				uuid: "a42d9679-7f44-47a6-a42a-89e3bedacd1f",
 			},
-			want:    &Cluster{
+			want: &Cluster{
 				Uuid:       "2f41aabe-1610-4e4a-bc1c-9b24e9f8ec11",
 				Name:       "fate-8888",
 				NameSpaces: "fate-8888",
-				Version:    "v1.2.0",
+				Version:    1,
 				Metadata:   map[string]interface{}{},
 				Status:     Creating_c,
 				Backend: ComputingBackend{
@@ -139,4 +144,89 @@ func TestFindClusterFindByUUID(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestClusterDeleteByUUID(t *testing.T) {
+	InitConfigForTest()
+	type args struct {
+		uuid string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "",
+			args: args{
+				uuid: "a42d9679-7f44-47a6-a42a-89e3bedacd1f",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := ClusterDeleteByUUID(tt.args.uuid); (err != nil) != tt.wantErr {
+				t.Errorf("ClusterDeleteByUUID() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestFindClusterList(t *testing.T) {
+	InitConfigForTest()
+	type args struct {
+		args string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []*Cluster
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:    "",
+			args:    args{
+				args: "",
+			},
+			want:    nil,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := FindClusterList(tt.args.args)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("FindClusterList() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FindClusterList() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestClusterDeleteAll(t *testing.T){
+	InitConfigForTest()
+
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	db, err := ConnectDb()
+	if err != nil {
+		log.Println(err)
+
+	}
+	collection := db.Collection(new(Cluster).getCollection())
+	filter := bson.D{}
+	r, err := collection.DeleteMany(ctx, filter)
+	if err != nil {
+		log.Println(err)
+	}
+	if r.DeletedCount == 0 {
+		log.Println("this record may not exist(DeletedCount==0)")
+	}
+	fmt.Println(r)
+	return
 }

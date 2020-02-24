@@ -10,7 +10,7 @@ func TestNewFateCluster(t *testing.T) {
 	InitConfigForTest()
 	party := NewParty("9999", "192.168.0.1", "normal")
 	backend := NewComputingBackend("egg", "1")
-	fate := NewCluster("fate-cluster1", "fate-nameSpaces", "v1.2.0", *backend, *party)
+	fate := NewCluster("fate-cluster1", "fate-nameSpaces",  *backend, *party)
 	clusterUuid, error := Save(fate)
 	if error == nil {
 		t.Log("uuid: ", clusterUuid)

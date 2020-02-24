@@ -29,6 +29,8 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+const latestChartVersion string = "v1.2.0"
+
 type Chart interface {
 	save(Chart) error
 	read(version string) (Chart, error)
@@ -86,7 +88,7 @@ func (fc *FateChart) load(version string) (*FateChart, error) {
 		return nil, err
 	}
 
-	helmChart,err := chartRequestedTohelmChart(chartRequested)
+	helmChart, err := chartRequestedTohelmChart(chartRequested)
 	if err != nil {
 		return nil, err
 	}
@@ -100,10 +102,10 @@ func (fc *FateChart) load(version string) (*FateChart, error) {
 	}, nil
 }
 
-func chartRequestedTohelmChart(chartRequested *chart.Chart) (*db.HelmChart ,error){
+func chartRequestedTohelmChart(chartRequested *chart.Chart) (*db.HelmChart, error) {
 	if chartRequested == nil || chartRequested.Raw == nil {
 		log.Error().Msg("chartRequested not exist")
-		return nil,errors.New("chartRequested not exist")
+		return nil, errors.New("chartRequested not exist")
 	}
 
 	var chartData string
@@ -125,7 +127,7 @@ func chartRequestedTohelmChart(chartRequested *chart.Chart) (*db.HelmChart ,erro
 		chartData, valuesData, chartRequested.Templates, chartRequested.AppVersion())
 
 	helmChart.ValuesTemplate = ValuesTemplate
-	return helmChart,nil
+	return helmChart, nil
 }
 
 func (fc *FateChart) GetChartValuesTemplates() (string, error) {
@@ -154,14 +156,18 @@ func (fc *FateChart) GetChartValues(v map[string]interface{}) (map[string]interf
 
 // todo  get chart by version from repository
 func GetFateChart(version string) (*FateChart, error) {
+	chartVersion := version
+	if version == "" {
+		chartVersion = latestChartVersion
+	}
 	fc := new(FateChart)
-	fc, err := fc.read(version)
+	fc, err := fc.read(chartVersion)
 	if err == nil {
 		return fc, nil
 	}
 	log.Debug().Interface("read error", err).Msg("read version FateChart err")
 
-	fc, err = fc.load(version)
+	fc, err = fc.load(chartVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -177,14 +183,6 @@ func (fc *FateChart) ToHelmChart() (*chart.Chart, error) {
 		return nil, errors.New("FateChart not exist")
 	}
 	return ConvertToChart(fc.HelmChart)
-}
-
-func GetChart(version string) db.HelmChart {
-	fateChart, err := GetFateChart(version)
-	if err != nil {
-		log.Err(err).Msg("get chart error")
-	}
-	return *fateChart.HelmChart
 }
 
 func GetChartPath() string {
@@ -358,4 +356,23 @@ func RepoAddAndUpdate() error {
 	ou.repoFile = settings.RepositoryConfig
 	err = ou.run(settings)
 	return err
+}
+
+func mergeMaps(a, b map[string]interface{}) map[string]interface{} {
+	out := make(map[string]interface{}, len(a))
+	for k, v := range a {
+		out[k] = v
+	}
+	for k, v := range b {
+		if v, ok := v.(map[string]interface{}); ok {
+			if bv, ok := out[k]; ok {
+				if bv, ok := bv.(map[string]interface{}); ok {
+					out[k] = mergeMaps(bv, v)
+					continue
+				}
+			}
+		}
+		out[k] = v
+	}
+	return out
 }

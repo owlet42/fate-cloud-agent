@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func Upgrade(namespace, name, version string, value *Value) error {
+func Upgrade(namespace, name, chartVersion string, value *Value) error {
 
 	EnvCs.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
@@ -33,7 +33,7 @@ func Upgrade(namespace, name, version string, value *Value) error {
 		client.Version = ">0.0.0-0"
 	}
 
-	fc, err := GetFateChart(version)
+	fc, err := GetFateChart(chartVersion)
 	if err != nil {
 		log.Err(err).Msg("GetFateChart error")
 		return err

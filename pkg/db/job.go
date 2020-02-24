@@ -3,7 +3,6 @@ package db
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -56,7 +55,7 @@ func (s JobStatus) String() string {
 	return names[s]
 }
 
-func (s *JobStatus) MarshalJSON() ([]byte, error) {
+func (s JobStatus) MarshalJSON() ([]byte, error) {
 	buffer := bytes.NewBufferString(`"`)
 	buffer.WriteString(s.String())
 	buffer.WriteString(`"`)
@@ -65,18 +64,31 @@ func (s *JobStatus) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON sets *m to a copy of data.
 func (s *JobStatus) UnmarshalJSON(data []byte) error {
-	names := map[string]JobStatus{
-		"Pending":  Pending_j,
-		"Running":  Running_j,
-		"Success":  Success_j,
-		"Failed":   Failed_j,
-		"Retry":    Retry_j,
-		"Timeout":  Timeout_j,
-		"Canceled": Canceled_j,
+	if s == nil {
+		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
+	}
+	var JobStatus JobStatus
+	switch string(data) {
+	case "\"Pending\"":
+		JobStatus = Pending_j
+	case "\"Running\"":
+		JobStatus = Running_j
+	case "\"Success\"":
+		JobStatus = Success_j
+	case "\"Failed\"":
+		JobStatus = Failed_j
+	case "\"Retry\"":
+		JobStatus = Retry_j
+	case "\"Timeout\"":
+		JobStatus = Timeout_j
+	case "\"Canceled\"":
+		JobStatus = Canceled_j
+	default:
+		return errors.New("data can't UnmarshalJSON")
 	}
 
-	JobStatus := names[fmt.Sprint(data)]
-	s = &JobStatus
+	//log.Debug().Interface("JobStatus", JobStatus).Bytes("datab", data).Str("data", string(data)).Msg("UnmarshalJSON")
+	*s = JobStatus
 	return nil
 }
 

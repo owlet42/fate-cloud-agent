@@ -12,9 +12,17 @@ import (
 	"strconv"
 )
 
+type Result struct {
+	Namespace   string
+	ChartName   string
+	ChartVersion string
+	ChartValues map[string]interface{}
+	release     *releaseElement
+}
+
 // install is create a cluster
 // value is a json ,
-func Install(namespace, name, version string, value *Value) (*releaseElement, error) {
+func Install(namespace, name, chartVersion string, value *Value) (*Result, error) {
 
 	EnvCs.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
@@ -38,12 +46,12 @@ func Install(namespace, name, version string, value *Value) (*releaseElement, er
 	//	return nil, err
 	//}
 	// get chart by version from repository
-	fc, err := GetFateChart(version)
+	fc, err := GetFateChart(chartVersion)
 	if err != nil {
 		log.Err(err).Msg("GetFateChart error")
 		return nil, err
 	}
-	log.Debug().Interface("FateChart", fc).Msg("GetFateChart success")
+	log.Debug().Interface("FateChartName", fc.Name).Msg("GetFateChart success")
 
 	// fateChart to helmChart
 	chartRequested, err := fc.ToHelmChart()
@@ -66,6 +74,9 @@ func Install(namespace, name, version string, value *Value) (*releaseElement, er
 		log.Err(err).Msg("values yaml Unmarshal error")
 		return nil, err
 	}
+	// default values
+	val = mergeMaps(val, chartRequested.Values)
+
 	log.Debug().Fields(val).Msg("chart values: ")
 
 	rel, err := runInstall(name, chartRequested, client, val, settings)
@@ -76,7 +87,13 @@ func Install(namespace, name, version string, value *Value) (*releaseElement, er
 
 	log.Debug().Interface("runInstall result", rel)
 
-	return newReleaseWriter(rel), nil
+	return &Result{
+		Namespace:   settings.Namespace(),
+		ChartName:   fc.Name,
+		ChartVersion: fc.Version,
+		ChartValues: val,
+		release:     newReleaseWriter(rel),
+	}, nil
 }
 func newReleaseWriter(releases *release.Release) *releaseElement {
 	// Initialize the array so no results returns an empty array instead of null
