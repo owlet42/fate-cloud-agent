@@ -34,12 +34,12 @@ func (_ *Job) getJob(c *gin.Context) {
 
 	jobId := c.Param("jobId")
 	if jobId == "" {
-		c.JSON(400, gin.H{"msg": "not exit jobId"})
+		c.JSON(400, gin.H{"error": "not exit jobId"})
 		return
 	}
 	result, err := db.JobFindByUUID(jobId)
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(500, gin.H{"error": err})
 		return
 	}
 	c.JSON(200, gin.H{"data": result})
@@ -49,13 +49,13 @@ func (_ *Job) deleteJob(c *gin.Context) {
 
 	jobId := c.Param("jobId")
 	if jobId == "" {
-		c.JSON(400, gin.H{"msg": "err"})
+		c.JSON(400, gin.H{"error": "not exit jobId"})
 		return
 	}
 
 	err := db.JobDeleteByUUID(jobId)
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(500, gin.H{"error": err})
 		return
 	}
 	c.JSON(200, gin.H{"msg": "delete Job success"})

@@ -5,7 +5,6 @@ import (
 	"fate-cloud-agent/pkg/job"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"net/http"
 )
 
 type Cluster struct {
@@ -33,7 +32,7 @@ func (_ *Cluster) createCluster(c *gin.Context) {
 	clusterArgs := new(job.ClusterArgs)
 
 	if err := c.ShouldBindJSON(&clusterArgs); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 	log.Debug().Interface("parameters", clusterArgs).Msg("parameters")
@@ -41,7 +40,7 @@ func (_ *Cluster) createCluster(c *gin.Context) {
 	// create job and use goroutine do job result save to db
 	j, err := job.ClusterInstall(clusterArgs, user.(*User).Username)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(200, gin.H{"msg": "createCluster success", "data": j})
@@ -58,7 +57,7 @@ func (_ *Cluster) setCluster(c *gin.Context) {
 	clusterArgs := new(job.ClusterArgs)
 
 	if err := c.ShouldBindJSON(&clusterArgs); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 	log.Debug().Interface("parameters", clusterArgs).Msg("parameters")
@@ -66,7 +65,7 @@ func (_ *Cluster) setCluster(c *gin.Context) {
 	// create job and use goroutine do job result save to db
 	j, err := job.ClusterUpdate(clusterArgs)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(200, gin.H{"msg": "setCluster success", "data": j})
@@ -76,11 +75,11 @@ func (_ *Cluster) getCluster(c *gin.Context) {
 
 	clusterId := c.Param("clusterId")
 	if clusterId == "" {
-		c.JSON(400, gin.H{"msg": "err"})
+		c.JSON(400, gin.H{"error": "err"})
 	}
 	cluster, err := db.ClusterFindByUUID(clusterId)
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(500, gin.H{"error": err})
 	}
 
 	c.JSON(200, gin.H{"data": cluster})
@@ -90,7 +89,7 @@ func (_ *Cluster) getClusterList(c *gin.Context) {
 
 	clusterList, err := db.FindClusterList("")
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(200, gin.H{"msg": "getClusterList success", "data": clusterList})
@@ -100,7 +99,7 @@ func (_ *Cluster) deleteCluster(c *gin.Context) {
 
 	clusterId := c.Param("clusterId")
 	if clusterId == "" {
-		c.JSON(400, gin.H{"msg": "err"})
+		c.JSON(400, gin.H{"error": "err"})
 	}
 
 	j := job.ClusterDelete(clusterId)

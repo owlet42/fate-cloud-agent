@@ -2,8 +2,6 @@ package api
 
 import (
 	"fate-cloud-agent/pkg/db"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -53,18 +51,18 @@ func (*User) createUser(c *gin.Context) {
 
 	user := new(db.User)
 	if err := c.ShouldBindJSON(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 	// Use db.Newuser method to generate uuid
 	user = db.NewUser(user.Username, user.Password, user.Email)
 	if user.IsExisted() {
-		c.JSON(http.StatusBadRequest, gin.H{"error": USEREXISTED})
+		c.JSON(500, gin.H{"error": USEREXISTED})
 		return
 	}
 	uuid, err := db.Save(user)
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(500, gin.H{"msg": err})
 	}
 
 	user.Uuid = uuid
@@ -77,13 +75,13 @@ func (*User) setUser(c *gin.Context) {
 	userId := c.Param("userId")
 	user := new(db.User)
 	if err := c.ShouldBindJSON(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 	user.Uuid = userId
 	err := db.UpdateByUUID(user, userId)
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(500, gin.H{"error": err})
 	}
 
 	c.JSON(200, gin.H{"msg": "setUser success"})
@@ -92,11 +90,11 @@ func (*User) getUser(c *gin.Context) {
 
 	userId := c.Param("userId")
 	if userId == "" {
-		c.JSON(400, gin.H{"msg": "err"})
+		c.JSON(400, gin.H{"error": "err"})
 	}
 	result, err := getUserFindByUUID(userId)
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(500, gin.H{"error": err})
 	}
 	c.JSON(200, gin.H{"data": result})
 }
@@ -112,12 +110,12 @@ func (*User) deleteUser(c *gin.Context) {
 
 	userId := c.Param("userId")
 	if userId == "" {
-		c.JSON(400, gin.H{"msg": "err"})
+		c.JSON(400, gin.H{"error": "err"})
 	}
 	user := new(db.User)
 	_, err := db.DeleteByUUID(user, userId)
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err})
+		c.JSON(500, gin.H{"error": err})
 	}
 
 	c.JSON(200, gin.H{"msg": "deleteUser success"})
