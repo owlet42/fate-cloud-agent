@@ -33,6 +33,11 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 
 	//do job
 	go func() {
+		job.Status = db.Running_j
+		err = db.UpdateByUUID(job, job.Uuid)
+		if err != nil {
+			log.Error().Err(err).Str("jobId", job.Uuid).Msg("update job By Uuid error")
+		}
 		//create a cluster use parameter
 		cluster := db.NewCluster(clusterArgs.Name, clusterArgs.Namespace,
 			db.ComputingBackend{}, db.Party{})
@@ -85,6 +90,7 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 
 		// rollBACK
 		if job.Status == db.Failed_j {
+
 			_, err = db.DeleteByUUID(cluster, job.ClusterId)
 			if err != nil {
 				log.Error().Err(err).Interface("cluster", cluster).Msg("delete cluster error")
@@ -104,11 +110,11 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 	return job, nil
 }
 
-func ClusterUpdate(clusterArgs *ClusterArgs) (*db.Job, error) {
+func ClusterUpdate(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 	//if ok := service.IsExited(clusterArgs.Name, clusterArgs.Namespace); !ok {
 	//	return nil, errors.New("cluster is exited")
 	//}
-	job := db.NewJob("ClusterInstall", "")
+	job := db.NewJob("ClusterUpdate", creator)
 	//create a cluster use parameter
 	cluster, err := db.ClusterFindByName(clusterArgs.Name, clusterArgs.Namespace)
 	if err != nil {
@@ -130,6 +136,11 @@ func ClusterUpdate(clusterArgs *ClusterArgs) (*db.Job, error) {
 
 	//do job
 	go func() {
+		job.Status = db.Running_j
+		err = db.UpdateByUUID(job, job.Uuid)
+		if err != nil {
+			log.Error().Err(err).Str("jobId", job.Uuid).Msg("update job By Uuid error")
+		}
 
 		cluster.Status = db.Updating_c
 		cluster.Version += 1
@@ -195,9 +206,9 @@ func ClusterUpdate(clusterArgs *ClusterArgs) (*db.Job, error) {
 	return job, nil
 }
 
-func ClusterDelete(clusterId string) (*db.Job, error) {
+func ClusterDelete(clusterId string, creator string) (*db.Job, error) {
 
-	job := db.NewJob("ClusterDelete", "")
+	job := db.NewJob("ClusterDelete", creator)
 	cluster, err := db.ClusterFindByUUID(clusterId)
 	if err != nil {
 		log.Error().Err(err).Interface("clusterId", clusterId).Msg("find cluster by clusterId error")
@@ -215,7 +226,11 @@ func ClusterDelete(clusterId string) (*db.Job, error) {
 	log.Info().Str("jobId", job.Uuid).Msg("create a new job of ClusterDelete")
 
 	go func() {
-
+		job.Status = db.Running_j
+		err = db.UpdateByUUID(job, job.Uuid)
+		if err != nil {
+			log.Error().Err(err).Str("jobId", job.Uuid).Msg("update job By Uuid error")
+		}
 		cluster.Status = db.Deleting_c
 		err = db.UpdateByUUID(cluster, job.ClusterId)
 		if err != nil {
@@ -248,6 +263,7 @@ func ClusterDelete(clusterId string) (*db.Job, error) {
 
 		// rollBACK
 		if job.Status == db.Failed_j {
+			cluster.Status = db.Running_c
 			err = db.UpdateByUUID(cluster_old, job.ClusterId)
 			if err != nil {
 				log.Error().Err(err).Interface("cluster", cluster).Msg("rollBACK cluster error")

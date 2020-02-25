@@ -54,6 +54,8 @@ func (_ *Cluster) setCluster(c *gin.Context) {
 	//	return
 	//}
 
+	user, _ := c.Get(identityKey)
+
 	clusterArgs := new(job.ClusterArgs)
 
 	if err := c.ShouldBindJSON(&clusterArgs); err != nil {
@@ -63,7 +65,7 @@ func (_ *Cluster) setCluster(c *gin.Context) {
 	log.Debug().Interface("parameters", clusterArgs).Msg("parameters")
 
 	// create job and use goroutine do job result save to db
-	j, err := job.ClusterUpdate(clusterArgs)
+	j, err := job.ClusterUpdate(clusterArgs, user.(*User).Username)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -97,12 +99,14 @@ func (_ *Cluster) getClusterList(c *gin.Context) {
 
 func (_ *Cluster) deleteCluster(c *gin.Context) {
 
+	user, _ := c.Get(identityKey)
+
 	clusterId := c.Param("clusterId")
 	if clusterId == "" {
 		c.JSON(400, gin.H{"error": "err"})
 	}
 
-	j,err := job.ClusterDelete(clusterId)
+	j,err := job.ClusterDelete(clusterId, user.(*User).Username)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return

@@ -77,9 +77,9 @@ func (c *Job) outPutList(result interface{}) error {
 	}
 
 	table := uitable.New()
-	table.AddRow("UUID", "CREATOR", "STARTTIME", "ENDTIME", "STATUS", "CLUSTERID")
+	table.AddRow("UUID", "CREATOR","METHOD", "STATUS", "CLUSTERID")
 	for _, r := range item.Data {
-		table.AddRow(r.Uuid, r.Creator, r.StartTime.Format("2006-01-02 15:04:05"), r.EndTime.Format("2006-01-02 15:04:05"), r.Status.String(), r.ClusterId)
+		table.AddRow(r.Uuid, r.Creator,r.Method, r.Status.String(), r.ClusterId)
 	}
 
 	return output.EncodeTable(os.Stdout, table)
@@ -130,8 +130,8 @@ func (c *Job) outPutInfo(result interface{}) error {
 	table := uitable.New()
 
 	table.AddRow("UUID", job.Uuid)
-	table.AddRow("StartTime", job.StartTime)
-	table.AddRow("EndTime", job.EndTime)
+	table.AddRow("StartTime", job.StartTime.Format("2006-01-02 15:04:05"))
+	table.AddRow("EndTime", job.EndTime.Format("2006-01-02 15:04:05"))
 	table.AddRow("Status", job.Status.String())
 	table.AddRow("Creator", job.Creator)
 	table.AddRow("ClusterId", job.ClusterId)

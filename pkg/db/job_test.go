@@ -1,7 +1,10 @@
 package db
 
 import (
+	"context"
 	"fate-cloud-agent/pkg/utils/logging"
+	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"reflect"
 	"testing"
 	"time"
@@ -186,4 +189,25 @@ func TestJobStatus_MarshalJSON(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestJobDeleteAll(t *testing.T) {
+	InitConfigForTest()
+
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	db, err := ConnectDb()
+	if err != nil {
+		log.Error().Err(err).Msg("ConnectDb")
+	}
+	collection := db.Collection(new(Job).getCollection())
+	filter := bson.D{}
+	r, err := collection.DeleteMany(ctx, filter)
+	if err != nil {
+		log.Error().Err(err).Msg("DeleteMany")
+	}
+	if r.DeletedCount == 0 {
+		log.Error().Msg("this record may not exist(DeletedCount==0)")
+	}
+	fmt.Println(r)
+	return
 }
