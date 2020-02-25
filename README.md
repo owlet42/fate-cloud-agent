@@ -3,7 +3,9 @@
 
 
 ```bash
-git clone <git-repo>
+git clone https://gitlab.eng.vmware.com/fate/fate-cloud-agent.git
+
+cd ./fate-cloud-agent
 ```
 
 deploy 
