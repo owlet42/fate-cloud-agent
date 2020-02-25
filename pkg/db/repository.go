@@ -114,29 +114,25 @@ func FindByName(repository Repository, name string, namespace string) (interface
 	}
 	collection := db.Collection(repository.getCollection())
 
-	filter := bson.M{"name": name, "namespace": namespace}
-	cur, err := collection.Find(ctx, filter)
+	filter := bson.M{"name": name, "namespaces": namespace}
+	cur := collection.FindOne(ctx, filter)
+
+	//var r interface{}
+
+	// Decode to bson map
+	var result bson.M
+	err = cur.Decode(&result)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	defer cur.Close(ctx)
-	var r interface{}
-	for cur.Next(ctx) {
-		// Decode to bson map
-		var result bson.M
-		err := cur.Decode(&result)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-		// Convert bson.M to struct
-		r, err = repository.FromBson(&result)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
+	// Convert bson.M to struct
+	r, err := repository.FromBson(&result)
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
+
 	return r, nil
 }
 

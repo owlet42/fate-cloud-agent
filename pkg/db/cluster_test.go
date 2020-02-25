@@ -3,11 +3,12 @@ package db
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"log"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 var clusterJustAddedUuid string
@@ -187,8 +188,8 @@ func TestFindClusterList(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name:    "",
-			args:    args{
+			name: "",
+			args: args{
 				args: "",
 			},
 			want:    nil,
@@ -209,24 +210,60 @@ func TestFindClusterList(t *testing.T) {
 	}
 }
 
-func TestClusterDeleteAll(t *testing.T){
+func TestClusterDeleteAll(t *testing.T) {
 	InitConfigForTest()
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	db, err := ConnectDb()
 	if err != nil {
-		log.Println(err)
-
+		log.Error().Err(err).Msg("ConnectDb")
 	}
 	collection := db.Collection(new(Cluster).getCollection())
 	filter := bson.D{}
 	r, err := collection.DeleteMany(ctx, filter)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("DeleteMany")
 	}
 	if r.DeletedCount == 0 {
-		log.Println("this record may not exist(DeletedCount==0)")
+		log.Error().Msg("this record may not exist(DeletedCount==0)")
 	}
 	fmt.Println(r)
 	return
+}
+
+func TestClusterFindByName(t *testing.T) {
+	InitConfigForTest()
+	type args struct {
+		name      string
+		namespace string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *Cluster
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "",
+			args: args{
+				name:      "fate-10000",
+				namespace: "fate-10000",
+			},
+			want:    nil,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ClusterFindByName(tt.args.name, tt.args.namespace)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ClusterFindByName() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ClusterFindByName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

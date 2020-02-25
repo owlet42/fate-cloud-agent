@@ -102,7 +102,10 @@ func (_ *Cluster) deleteCluster(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "err"})
 	}
 
-	j := job.ClusterDelete(clusterId)
-
+	j,err := job.ClusterDelete(clusterId)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(200, gin.H{"msg": "deleteCluster success", "data": j})
 }

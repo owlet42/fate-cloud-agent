@@ -27,6 +27,7 @@ func checkPodStatus(pods *v1.PodList, ) bool {
 
 }
 
+// todo get pod by name
 func CheckClusterStatus(name, namespace string) (bool, error) {
 	list, err := GetPods(namespace)
 	if err != nil {

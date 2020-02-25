@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func Upgrade(namespace, name, chartVersion string, value *Value) error {
+func Upgrade(namespace, name, chartVersion string, value *Value) (*Result, error)  {
 
 	EnvCs.Lock()
 	err := os.Setenv("HELM_NAMESPACE", namespace)
@@ -23,7 +23,7 @@ func Upgrade(namespace, name, chartVersion string, value *Value) error {
 	client := action.NewUpgrade(cfg)
 
 	if err := cfg.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), debug); err != nil {
-		return err
+		return nil,err
 	}
 
 	client.Namespace = settings.Namespace()
@@ -36,7 +36,7 @@ func Upgrade(namespace, name, chartVersion string, value *Value) error {
 	fc, err := GetFateChart(chartVersion)
 	if err != nil {
 		log.Err(err).Msg("GetFateChart error")
-		return err
+		return nil,err
 	}
 	log.Debug().Interface("FateChart", fc).Msg("GetFateChart success")
 
@@ -44,14 +44,14 @@ func Upgrade(namespace, name, chartVersion string, value *Value) error {
 	ch, err := fc.ToHelmChart()
 	if err != nil {
 		log.Err(err).Msg("GetFateChart error")
-		return err
+		return nil,err
 	}
 
 	// template to values map
 	v, err := value.Unmarshal()
 	if err != nil {
 		log.Err(err).Msg("values yaml Unmarshal error")
-		return  err
+		return  nil,err
 	}
 	log.Debug().Fields(v).Msg("temp values:")
 
@@ -59,13 +59,13 @@ func Upgrade(namespace, name, chartVersion string, value *Value) error {
 	val, err := fc.GetChartValues(v)
 	if err != nil {
 		log.Err(err).Msg("values yaml Unmarshal error")
-		return err
+		return nil,err
 	}
 	log.Debug().Fields(val).Msg("chart values: ")
 
 	if req := ch.Metadata.Dependencies; req != nil {
 		if err := action.CheckDependencies(ch, req); err != nil {
-			return err
+			return nil,err
 		}
 	}
 
@@ -73,9 +73,15 @@ func Upgrade(namespace, name, chartVersion string, value *Value) error {
 		fmt.Println("WARNING: This chart is deprecated")
 	}
 
-	_, err = client.Run(name, ch, val)
+	rel, err := client.Run(name, ch, val)
 	if err != nil {
-		return errors.Wrap(err, "UPGRADE FAILED")
+		return nil,errors.Wrap(err, "UPGRADE FAILED")
 	}
-	return nil
+	return &Result{
+		Namespace:   settings.Namespace(),
+		ChartName:   fc.Name,
+		ChartVersion: fc.Version,
+		ChartValues: val,
+		release:     rel,
+	},nil
 }

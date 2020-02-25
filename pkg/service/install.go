@@ -17,7 +17,7 @@ type Result struct {
 	ChartName   string
 	ChartVersion string
 	ChartValues map[string]interface{}
-	release     *releaseElement
+	release     *release.Release
 }
 
 // install is create a cluster
@@ -92,7 +92,7 @@ func Install(namespace, name, chartVersion string, value *Value) (*Result, error
 		ChartName:   fc.Name,
 		ChartVersion: fc.Version,
 		ChartValues: val,
-		release:     newReleaseWriter(rel),
+		release:     rel,
 	}, nil
 }
 func newReleaseWriter(releases *release.Release) *releaseElement {

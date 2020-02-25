@@ -3,7 +3,6 @@ package db
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -60,15 +59,26 @@ func (s *ClusterStatus) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON sets *m to a copy of data.
 func (s *ClusterStatus) UnmarshalJSON(data []byte) error {
-	names := map[string]ClusterStatus{
-		"\"Creating\"":    Creating_c,
-		"\"Deleting\"":    Deleting_c,
-		"\"Updating\"":    Updating_c,
-		"\"Running\"":     Running_c,
-		"\"Unavailable\"": Unavailable_c,
+	if s == nil {
+		return errors.New("json.RawMessage: UnmarshalJSON on nil pointer")
+	}
+	var ClusterStatus ClusterStatus
+	switch string(data) {
+	case "\"Creating\"":
+		ClusterStatus = Creating_c
+	case "\"Deleting\"":
+		ClusterStatus = Deleting_c
+	case "\"Updating\"":
+		ClusterStatus = Updating_c
+	case "\"Running\"":
+		ClusterStatus = Running_c
+	case "\"Unavailable\"":
+		ClusterStatus = Unavailable_c
+	default:
+		return errors.New("data can't UnmarshalJSON")
 	}
 
-	ClusterStatus := names[fmt.Sprint(data)]
+	//log.Debug().Interface("JobStatus", JobStatus).Bytes("datab", data).Str("data", string(data)).Msg("UnmarshalJSON")
 	*s = ClusterStatus
 	return nil
 }
@@ -136,12 +146,12 @@ func ClusterFindByName(name, namespace string) (*Cluster, error) {
 	if result == nil {
 		return nil, errors.New("cluster no find")
 	}
-	Cluster, ok := result.([]*Cluster)
+	Cluster, ok := result.(Cluster)
 	if !ok {
 		return nil, errors.New("assertion type error")
 	}
 	log.Debug().Interface("Cluster", Cluster).Msg("find Cluster success")
-	return Cluster[0], nil
+	return &Cluster, nil
 }
 
 // FindClusterList get all cluster list
