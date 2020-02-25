@@ -20,17 +20,17 @@ $ kubectl get all,ingress -n kube-fate
 
 cluster deploy
 ```bash
-$ kubefate install -n <namespaces> -f ./cluster.yaml <clusterName>
+$ kubefate cluster install -n <namespaces> -f ./cluster.yaml <clusterName>
 ```
 
 cluster upgrade 
 ```bash
-$ kubefate upgrade -n <namespaces> -f ./cluster.yaml <clusterName>
+$ kubefate cluster upgrade -n <namespaces> -f ./cluster.yaml <clusterName>
 ```
 
 cluster delete 
 ```bash
-$ kubefate delete <clusterId>
+$ kubefate cluster delete <clusterId>
 ```
 
 cluster list 
