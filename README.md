@@ -1,6 +1,6 @@
 # fate-cloud-agent
 
-config
+
 
 ```bash
 git clone <git-repo>
