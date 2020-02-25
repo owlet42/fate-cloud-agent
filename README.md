@@ -2,46 +2,48 @@
 
 config
 
-
-init service pod
 ```bash
-$ kubefate init -f ./config.yaml
+git clone <git-repo>
 ```
-kubefate service pod status 
+
+deploy 
 ```bash
-$ kubefate status
+$ kubectl apply ./rbac-config.yaml
+$ kubectl apply ./kubefate.yaml
+
+$ kubectl get all,ingress -n kube-fate
 ```
 
 *Service pod must run successfully*
 
 cluster deploy
 ```bash
-$ kubefate install <clusterName> -f ./cluster.yaml
+$ kubefate install -n <namespaces> -f ./cluster.yaml <clusterName>
 ```
 
 cluster upgrade 
 ```bash
-$ kubefate upgrade <clusterName> -f ./cluster.yaml
+$ kubefate upgrade -n <namespaces> -f ./cluster.yaml <clusterName>
 ```
 
 cluster delete 
 ```bash
-$ kubefate upgrade <clusterName>
+$ kubefate delete <clusterId>
 ```
 
 cluster list 
 ```bash
-$ kubefate list
+$ kubefate cluster list
 ```
 
 cluster info 
 ```bash
-$ kubefate describe <clusterName>
+$ kubefate cluster describe <clusterId>
 ```
 
 job info
 ```bash
-$ kubefate job <jobUUID>
+$ kubefate job describe <jobUUID>
 ```
 
 job list
@@ -52,19 +54,4 @@ $ kubefate job list
 job delete
 ```bash
 $ kubefate job delete <jobUUID>
-```
-
-user info
-```bash
-$ kubefate user <userUUID>
-```
-
-user list
-```bash
-$ kubefate user list
-```
-
-user delete
-```bash
-$ kubefate user delete <userUUID>
 ```
