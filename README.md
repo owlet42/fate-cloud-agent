@@ -10,8 +10,8 @@ cd ./fate-cloud-agent
 
 deploy 
 ```bash
-$ kubectl apply ./rbac-config.yaml
-$ kubectl apply ./kubefate.yaml
+$ kubectl apply -f ./rbac-config.yaml
+$ kubectl apply -f ./kubefate.yaml
 
 $ kubectl get all,ingress -n kube-fate
 ```
