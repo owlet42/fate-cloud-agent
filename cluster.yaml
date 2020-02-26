@@ -1,3 +1,6 @@
+name: fate-10000
+namespaces: fate-10000
+version: v1.2.0
 partyId: 10000
 endpoint:
   ip: 192.168.1.1

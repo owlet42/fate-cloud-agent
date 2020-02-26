@@ -35,6 +35,7 @@ const (
 	Updating_c
 	Running_c
 	Unavailable_c
+	Delete_c
 )
 
 func (s ClusterStatus) String() string {
@@ -44,6 +45,7 @@ func (s ClusterStatus) String() string {
 		"Updating",
 		"Running",
 		"Unavailable",
+		"Delete",
 	}
 
 	return names[s]
@@ -74,6 +76,8 @@ func (s *ClusterStatus) UnmarshalJSON(data []byte) error {
 		ClusterStatus = Running_c
 	case "\"Unavailable\"":
 		ClusterStatus = Unavailable_c
+	case "\"Delete\"":
+		ClusterStatus = Delete_c
 	default:
 		return errors.New("data can't UnmarshalJSON")
 	}
@@ -155,10 +159,11 @@ func ClusterFindByName(name, namespace string) (*Cluster, error) {
 }
 
 // FindClusterList get all cluster list
-func FindClusterList(args string) ([]*Cluster, error) {
+func FindClusterList(args string, all bool) ([]*Cluster, error) {
 
 	cluster := &Cluster{}
-	result, err := Find(cluster)
+	filter := bson.M{}
+	result, err := FindByFilter(cluster, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +178,12 @@ func FindClusterList(args string) ([]*Cluster, error) {
 
 func ClusterDeleteByUUID(uuid string) error {
 
-	err := DeleteOneByUUID(new(Cluster), uuid)
+	cluster, err := ClusterFindByUUID(uuid)
+	if err != nil {
+		return err
+	}
+	cluster.Status = Delete_c
+	err = UpdateByUUID(cluster, uuid)
 	if err != nil {
 		return err
 	}

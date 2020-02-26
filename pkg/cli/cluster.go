@@ -10,10 +10,22 @@ import (
 )
 
 type Cluster struct {
+	all bool
 }
 
 func (c *Cluster) getRequestPath() (Path string) {
 	return "cluster/"
+}
+func (c *Cluster) addArgs() (Args string) {
+
+	if c.all {
+		Args += "all=true&"
+	}
+
+	if len(Args) > 0 {
+		Args = "?" + Args
+	}
+	return Args
 }
 
 type ClusterResultList struct {

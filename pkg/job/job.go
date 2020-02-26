@@ -66,6 +66,12 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 
 		// todo job start status stop timeout
 		for job.Status == db.Running_j {
+
+			if job.TimeOut() {
+				job.Status = db.Timeout_j
+				break
+			}
+
 			clusterStatusOk, err := service.CheckClusterStatus(clusterArgs.Name, clusterArgs.Namespace)
 			if err != nil {
 				job.Status = db.Failed_j
@@ -75,7 +81,7 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 				job.Status = db.Success_j
 				break
 			}
-			time.Sleep(time.Second)
+			time.Sleep(30 * time.Second)
 		}
 
 		//todo save cluster to db
@@ -89,9 +95,8 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 		}
 
 		// rollBACK
-		if job.Status == db.Failed_j {
-
-			_, err = db.DeleteByUUID(cluster, job.ClusterId)
+		if job.Status != db.Success_j {
+			err = db.ClusterDeleteByUUID(job.ClusterId)
 			if err != nil {
 				log.Error().Err(err).Interface("cluster", cluster).Msg("delete cluster error")
 			}
@@ -163,6 +168,10 @@ func ClusterUpdate(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 
 		// todo job start status stop timeout
 		for job.Status == db.Running_j {
+			if job.TimeOut() {
+				job.Status = db.Timeout_j
+				break
+			}
 			clusterStatusOk, err := service.CheckClusterStatus(clusterArgs.Name, clusterArgs.Namespace)
 			if err != nil {
 				job.Status = db.Failed_j
@@ -186,7 +195,8 @@ func ClusterUpdate(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 		}
 
 		// rollBACK
-		if job.Status == db.Failed_j {
+		if job.Status != db.Success_j {
+			// todo cluster k8s pod rollback
 			err = db.UpdateByUUID(cluster_old, job.ClusterId)
 			if err != nil {
 				log.Error().Err(err).Interface("cluster", cluster).Msg("rollBACK cluster error")
