@@ -26,7 +26,7 @@ type Job struct {
 type JobList []*Job
 
 func (jl JobList) Len() int           { return len(jl) }
-func (jl JobList) Less(i, j int) bool { return jl[i].StartTime.After(jl[j].StartTime) }
+func (jl JobList) Less(i, j int) bool { return jl[i].StartTime.Before(jl[j].StartTime) }
 func (jl JobList) Swap(i, j int)      { jl[i], jl[j] = jl[j], jl[i] }
 
 // Sort is a convenience method.

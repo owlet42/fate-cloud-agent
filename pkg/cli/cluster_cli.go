@@ -21,7 +21,7 @@ func ClusterCommand() *cli.Command {
 			ClusterInfoCommand(),
 			ClusterDeleteCommand(),
 			ClusterInstallCommand(),
-			ClusterUpgradeCommand(),
+			ClusterUpdateCommand(),
 		},
 		Usage: "add a task to the list",
 	}
@@ -166,21 +166,15 @@ func ClusterInstallCommand() *cli.Command {
 	}
 }
 
-func ClusterUpgradeCommand() *cli.Command {
+func ClusterUpdateCommand() *cli.Command {
 	return &cli.Command{
-		Name: "upgrade",
+		Name: "update",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "file",
 				Aliases: []string{"f"},
 				Value:   "",
 				Usage:   "chart valTemVal.yaml",
-			},
-			&cli.StringFlag{
-				Name:    "namespace",
-				Aliases: []string{"n"},
-				Value:   "",
-				Usage:   "k8s namespace",
 			},
 		},
 		Usage: "cluster Upgrade",

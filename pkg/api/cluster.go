@@ -78,17 +78,25 @@ func (_ *Cluster) getCluster(c *gin.Context) {
 	clusterId := c.Param("clusterId")
 	if clusterId == "" {
 		c.JSON(400, gin.H{"error": "err"})
+		return
 	}
 
-	cluster, err := db.ClusterFindByName(clusterId, clusterId)
-	if err != nil {
-		c.JSON(500, gin.H{"error": err})
-	}
 
-	cluster, err = db.ClusterFindByUUID(clusterId)
-	if err != nil {
-		c.JSON(500, gin.H{"error": err})
-	}
+
+	//cluster, err := db.ClusterFindByName(clusterId, clusterId)
+	//if err != nil {
+	//	c.JSON(500, gin.H{"error": err})
+	//	return
+	//}
+
+
+		cluster, err := db.ClusterFindByUUID(clusterId)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err})
+			return
+		}
+
+
 
 	c.JSON(200, gin.H{"data": cluster})
 }
@@ -108,7 +116,7 @@ func (_ *Cluster) getClusterList(c *gin.Context) {
 	var clusterListreturn = make([]*db.Cluster, 0)
 	if !all {
 		for _, v := range clusterList {
-			if v.Status != db.Delete_c {
+			if v.Status != db.Deleted_c {
 				clusterListreturn = append(clusterListreturn, v)
 			}
 		}

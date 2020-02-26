@@ -35,7 +35,7 @@ const (
 	Updating_c
 	Running_c
 	Unavailable_c
-	Delete_c
+	Deleted_c
 )
 
 func (s ClusterStatus) String() string {
@@ -45,7 +45,7 @@ func (s ClusterStatus) String() string {
 		"Updating",
 		"Running",
 		"Unavailable",
-		"Delete",
+		"Deleted",
 	}
 
 	return names[s]
@@ -76,8 +76,8 @@ func (s *ClusterStatus) UnmarshalJSON(data []byte) error {
 		ClusterStatus = Running_c
 	case "\"Unavailable\"":
 		ClusterStatus = Unavailable_c
-	case "\"Delete\"":
-		ClusterStatus = Delete_c
+	case "\"Deleted\"":
+		ClusterStatus = Deleted_c
 	default:
 		return errors.New("data can't UnmarshalJSON")
 	}
@@ -182,7 +182,7 @@ func ClusterDeleteByUUID(uuid string) error {
 	if err != nil {
 		return err
 	}
-	cluster.Status = Delete_c
+	cluster.Status = Deleted_c
 	err = UpdateByUUID(cluster, uuid)
 	if err != nil {
 		return err

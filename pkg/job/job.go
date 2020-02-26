@@ -81,7 +81,7 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 				job.Status = db.Success_j
 				break
 			}
-			time.Sleep(30 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 
 		//todo save cluster to db
