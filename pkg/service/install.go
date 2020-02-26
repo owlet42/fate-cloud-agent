@@ -75,7 +75,7 @@ func Install(namespace, name, chartVersion string, value *Value) (*Result, error
 		return nil, err
 	}
 	// default values
-	val = mergeMaps(chartRequested.Values, val)
+	//val = mergeMaps(chartRequested.Values, val)
 
 	log.Debug().Fields(val).Msg("chart values: ")
 

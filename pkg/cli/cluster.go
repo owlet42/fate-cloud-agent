@@ -96,7 +96,7 @@ func (c *Cluster) outPutList(result interface{}) error {
 	table := uitable.New()
 	table.AddRow("UUID", "NAME", "NAMESPACE", "REVISION", "STATUS", "CHART", "APP VERSION")
 	for _, r := range item.Data {
-		table.AddRow(r.Uuid, r.Name, r.NameSpaces, r.Version, r.Status, r.ChartName, r.ChartVersion)
+		table.AddRow(r.Uuid, r.Name, r.NameSpace, r.Version, r.Status, r.ChartName, r.ChartVersion)
 	}
 	return output.EncodeTable(os.Stdout, table)
 }
@@ -145,7 +145,7 @@ func (c *Cluster) outPutInfo(result interface{}) error {
 
 	table.AddRow("UUID", cluster.Uuid)
 	table.AddRow("Name", cluster.Name)
-	table.AddRow("NameSpaces", cluster.NameSpaces)
+	table.AddRow("NameSpace", cluster.NameSpace)
 	table.AddRow("Version", cluster.Version)
 	table.AddRow("Type", cluster.Type)
 	table.AddRow("Status", cluster.Status)

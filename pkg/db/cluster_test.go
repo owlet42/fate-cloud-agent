@@ -54,7 +54,7 @@ func TestUpdateCluster(t *testing.T) {
 	if error == nil {
 		fate2Update := result.(Cluster)
 		fate2Update.Name = "fate-cluster2"
-		fate2Update.NameSpaces = "fate-nameSpaces"
+		fate2Update.NameSpace = "fate-nameSpaces"
 
 		party := NewParty("10000", "192.168.0.1", "normal")
 		backend := NewComputingBackend("egg", "1")
@@ -114,12 +114,12 @@ func TestFindClusterFindByUUID(t *testing.T) {
 				uuid: "a42d9679-7f44-47a6-a42a-89e3bedacd1f",
 			},
 			want: &Cluster{
-				Uuid:       "2f41aabe-1610-4e4a-bc1c-9b24e9f8ec11",
-				Name:       "fate-8888",
-				NameSpaces: "fate-8888",
-				Version:    1,
-				Metadata:   map[string]interface{}{},
-				Status:     Creating_c,
+				Uuid:      "2f41aabe-1610-4e4a-bc1c-9b24e9f8ec11",
+				Name:      "fate-8888",
+				NameSpace: "fate-8888",
+				Version:   1,
+				Metadata:  map[string]interface{}{},
+				Status:    Creating_c,
 				Backend: ComputingBackend{
 					BackendType: "",
 					BackendInfo: "",
@@ -198,7 +198,7 @@ func TestFindClusterList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := FindClusterList(tt.args.args)
+			got, err := FindClusterList(tt.args.args,true)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("FindClusterList() error = %v, wantErr %v", err, tt.wantErr)
 				return

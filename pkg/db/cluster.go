@@ -9,9 +9,9 @@ import (
 )
 
 type Cluster struct {
-	Uuid       string `json:"uuid"`
-	Name       string `json:"name"`
-	NameSpaces string `json:"namespaces"`
+	Uuid      string `json:"uuid"`
+	Name      string `json:"name"`
+	NameSpace string `json:"namespaces"`
 	// Cluster version
 	Version int `json:"version"`
 	// Helm chart version, example: fate v1.2.0
@@ -114,7 +114,7 @@ func NewCluster(name string, nameSpaces string, backend ComputingBackend, party 
 	cluster := &Cluster{
 		Uuid:             uuid.NewV4().String(),
 		Name:             name,
-		NameSpaces:       nameSpaces,
+		NameSpace:        nameSpaces,
 		Version:          0,
 		Status:           Creating_c,
 		Backend:          backend,
@@ -190,4 +190,13 @@ func ClusterDeleteByUUID(uuid string) error {
 
 	log.Debug().Interface("ClusterUuid", uuid).Msg("delete Cluster success")
 	return nil
+}
+
+func (cluster *Cluster) IsExisted(name, namespace string) bool {
+	filter := bson.M{"name": name, "namespace": namespace}
+	users, err := FindByFilter(cluster, filter)
+	if err != nil || len(users) == 0 {
+		return false
+	}
+	return true
 }

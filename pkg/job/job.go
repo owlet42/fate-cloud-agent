@@ -4,6 +4,7 @@ package job
 import (
 	"fate-cloud-agent/pkg/db"
 	"fate-cloud-agent/pkg/service"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"time"
@@ -17,11 +18,13 @@ type ClusterArgs struct {
 }
 
 func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
-	//if ok := service.IsExited(clusterArgs.Name, clusterArgs.Namespace); !ok {
-	//	return nil, errors.New("cluster is exited")
-	//}
-	job := db.NewJob("ClusterInstall", creator)
+	cluster := new(db.Cluster)
+	if ok := cluster.IsExisted(clusterArgs.Name, clusterArgs.Namespace); !ok {
+		return nil, fmt.Errorf("name=%s cluster is exited",clusterArgs.Name)
+	}
 
+
+	job := db.NewJob("ClusterInstall", creator)
 	//  save job to db
 	_, err := db.Save(job)
 	if err != nil {
@@ -301,13 +304,13 @@ func install(fc *db.Cluster, values []byte) error {
 	fc.ChartName = viper.GetString("repo.name") + "/fate"
 	fc.Values = string(values)
 
-	result, err := service.Install(fc.NameSpaces, fc.Name, fc.ChartVersion, v)
+	result, err := service.Install(fc.NameSpace, fc.Name, fc.ChartVersion, v)
 	if err != nil {
 		return err
 	}
 
 	fc.ChartName = result.ChartName
-	fc.NameSpaces = result.Namespace
+	fc.NameSpace = result.Namespace
 	fc.ChartVersion = result.ChartVersion
 	fc.ChartValues = result.ChartValues
 
@@ -319,13 +322,13 @@ func upgrade(fc *db.Cluster, values []byte) error {
 	v.Val = values
 	v.T = "json"
 	fc.Values = string(values)
-	result, err := service.Upgrade(fc.NameSpaces, fc.Name, fc.ChartVersion, v)
+	result, err := service.Upgrade(fc.NameSpace, fc.Name, fc.ChartVersion, v)
 	if err != nil {
 		return err
 	}
 
 	fc.ChartName = result.ChartName
-	fc.NameSpaces = result.Namespace
+	fc.NameSpace = result.Namespace
 	fc.ChartVersion = result.ChartVersion
 	fc.ChartValues = result.ChartValues
 
@@ -334,7 +337,7 @@ func upgrade(fc *db.Cluster, values []byte) error {
 }
 func uninstall(fc *db.Cluster) error {
 
-	_, err := service.Delete(fc.NameSpaces, fc.Name)
+	_, err := service.Delete(fc.NameSpace, fc.Name)
 
 	return err
 }
