@@ -19,7 +19,7 @@ type ClusterArgs struct {
 
 func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 	cluster := new(db.Cluster)
-	if ok := cluster.IsExisted(clusterArgs.Name, clusterArgs.Namespace); !ok {
+	if ok := cluster.IsExisted(clusterArgs.Name, clusterArgs.Namespace); ok {
 		return nil, fmt.Errorf("name=%s cluster is exited",clusterArgs.Name)
 	}
 
@@ -37,25 +37,11 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 	//do job
 	go func() {
 		job.Status = db.Running_j
-		err = db.UpdateByUUID(job, job.Uuid)
-		if err != nil {
-			log.Error().Err(err).Str("jobId", job.Uuid).Msg("update job By Uuid error")
-		}
+
 		//create a cluster use parameter
 		cluster := db.NewCluster(clusterArgs.Name, clusterArgs.Namespace,
 			db.ComputingBackend{}, db.Party{})
 		job.ClusterId = cluster.Uuid
-
-		err := install(cluster, clusterArgs.Data)
-		if err != nil {
-			job.Result = err.Error()
-			job.Status = db.Failed_j
-			log.Error().Err(err).Str("ClusterId", cluster.Uuid).Msg("install cluster error")
-		} else {
-			job.Result = "install success"
-			job.Status = db.Running_j
-			log.Debug().Str("ClusterId", cluster.Uuid).Msg("install cluster success")
-		}
 
 		if job.Status == db.Running_j {
 			cluster.Status = db.Creating_c
@@ -67,16 +53,42 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 			log.Debug().Str("cluster uuid", cluster.Uuid).Msg("create cluster success")
 		}
 
+		err = db.UpdateByUUID(job, job.Uuid)
+		if err != nil {
+			log.Error().Err(err).Str("jobId", job.Uuid).Msg("update job By Uuid error")
+		}
+
+		err := install(cluster, clusterArgs.Data)
+		if err != nil {
+			job.Result = err.Error()
+			job.Status = db.Failed_j
+			log.Error().Err(err).Str("ClusterId", cluster.Uuid).Msg("helm install cluster error")
+		} else {
+			job.Result = "cluster install success"
+			job.Status = db.Running_j
+			log.Debug().Str("ClusterId", cluster.Uuid).Msg("helm install cluster success")
+		}
+
+
+
 		// todo job start status stop timeout
 		for job.Status == db.Running_j {
 
 			if job.TimeOut() {
-				job.Status = db.Timeout_j
+				job.Result = "checkout cluster status timeOut!"
+				job.Status = db.Failed_j
+				break
+			}
+
+			if !cluster.IsExisted(cluster.Name,cluster.NameSpace){
+				job.Result = "cluster deleted!"
+				job.Status = db.Failed_j
 				break
 			}
 
 			clusterStatusOk, err := service.CheckClusterStatus(clusterArgs.Name, clusterArgs.Namespace)
 			if err != nil {
+				job.Result = "CheckClusterStatus error:" + err.Error()
 				job.Status = db.Failed_j
 				break
 			}
@@ -119,14 +131,15 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 }
 
 func ClusterUpdate(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
-	//if ok := service.IsExited(clusterArgs.Name, clusterArgs.Namespace); !ok {
-	//	return nil, errors.New("cluster is exited")
+	//cluster := new(db.Cluster)
+	//if ok := cluster.IsExisted(clusterArgs.Name, clusterArgs.Namespace); ok {
+	//	return nil, fmt.Errorf("name=%s cluster is not exited",clusterArgs.Name)
 	//}
 	job := db.NewJob("ClusterUpdate", creator)
 	//create a cluster use parameter
 	cluster, err := db.ClusterFindByName(clusterArgs.Name, clusterArgs.Namespace)
 	if err != nil {
-		log.Error().Err(err).Interface("clusterArgs", clusterArgs).Msg("find cluster by clusterArgs error")
+		log.Error().Err(err).Interface("clusterArgs", clusterArgs).Msg("find cluster by clusterArgs error, cluster is not exited")
 		return nil, err
 	}
 
@@ -162,21 +175,28 @@ func ClusterUpdate(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 		if err != nil {
 			job.Result = err.Error()
 			job.Status = db.Failed_j
-			log.Error().Err(err).Str("ClusterId", cluster.Uuid).Msg("install cluster error")
+			log.Error().Err(err).Str("ClusterId", cluster.Uuid).Msg("helm upgrade cluster error")
 		} else {
-			job.Result = "install success"
+			job.Result = "cluster update success"
 			job.Status = db.Running_j
-			log.Debug().Str("ClusterId", cluster.Uuid).Msg("install cluster success")
+			log.Debug().Str("ClusterId", cluster.Uuid).Msg("helm upgrade cluster success")
 		}
 
 		// todo job start status stop timeout
 		for job.Status == db.Running_j {
 			if job.TimeOut() {
+				job.Result = "checkout cluster status timeOut!"
 				job.Status = db.Timeout_j
+				break
+			}
+			if !cluster.IsExisted(cluster.Name,cluster.NameSpace){
+				job.Result = "cluster deleted!"
+				job.Status = db.Failed_j
 				break
 			}
 			clusterStatusOk, err := service.CheckClusterStatus(clusterArgs.Name, clusterArgs.Namespace)
 			if err != nil {
+				job.Result = "CheckClusterStatus error:" + err.Error()
 				job.Status = db.Failed_j
 				break
 			}

@@ -146,12 +146,15 @@ func (c *Cluster) outPutInfo(result interface{}) error {
 	table.AddRow("UUID", cluster.Uuid)
 	table.AddRow("Name", cluster.Name)
 	table.AddRow("NameSpace", cluster.NameSpace)
-	table.AddRow("Version", cluster.Version)
-	table.AddRow("Type", cluster.Type)
+	table.AddRow("ChartVersion", cluster.ChartVersion)
+	table.AddRow("REVISION", cluster.Version)
+	//table.AddRow("Type", cluster.Type)
 	table.AddRow("Status", cluster.Status)
 	table.AddRow("Values", cluster.Values)
 	table.AddRow("ChartName", cluster.ChartName)
-	table.AddRow("ChartVersion", cluster.ChartVersion)
+
+	table.AddRow("Info", cluster.Metadata)
+
 	//table.AddRow("Backend", cluster.Backend)
 	//table.AddRow("BootstrapParties", cluster.BootstrapParties)
 

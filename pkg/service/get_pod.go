@@ -37,3 +37,17 @@ func CheckClusterStatus(name, namespace string) (bool, error) {
 
 	return checkPodStatus(list), nil
 }
+
+func GetPodList(namespace string)( []string ,error){
+	var labelSelector string
+	//labelSelector := "name=" + name
+	list, err := GetPods(namespace, labelSelector)
+	if err != nil {
+		return nil,err
+	}
+	var podList []string
+	for _,v:=range list.Items{
+		podList=append(podList,v.GetName())
+	}
+	return podList, nil
+}

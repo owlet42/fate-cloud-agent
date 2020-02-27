@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 )
+
 func TestFindHelmCharts(t *testing.T) {
 	InitConfigForTest()
 	job := &HelmChart{}
@@ -29,8 +30,8 @@ func TestHelmChart_FindHelmByVersion(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name:    "read",
-			args:    args{
+			name: "read",
+			args: args{
 				version: "v1.2.0",
 			},
 			want:    nil,
@@ -70,4 +71,32 @@ func TestChartDeleteAll(t *testing.T) {
 	}
 	fmt.Println(r)
 	return
+}
+
+func TestFindHelmChartList(t *testing.T) {
+	InitConfigForTest()
+	tests := []struct {
+		name    string
+		want    []*HelmChart
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:    "",
+			want:    nil,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := FindHelmChartList()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("FindHelmChartList() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			for _, v := range got {
+				t.Logf("%+v\n", v)
+			}
+		})
+	}
 }

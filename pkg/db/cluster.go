@@ -3,6 +3,7 @@ package db
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -141,9 +142,11 @@ func ClusterFindByUUID(uuid string) (*Cluster, error) {
 	return &Cluster, nil
 }
 
-// ClusterFindByUUID get cluster from via uuid
+// ClusterFindByName get cluster from via name
 func ClusterFindByName(name, namespace string) (*Cluster, error) {
-	result, err := FindByName(new(Cluster), name, namespace)
+
+	filter := bson.M{"name": name, "namespace": namespace}
+	result, err := FindOneByFilter(new(Cluster), filter)
 	if err != nil {
 		return nil, err
 	}
@@ -193,9 +196,12 @@ func ClusterDeleteByUUID(uuid string) error {
 }
 
 func (cluster *Cluster) IsExisted(name, namespace string) bool {
-	filter := bson.M{"name": name, "namespace": namespace}
-	users, err := FindByFilter(cluster, filter)
-	if err != nil || len(users) == 0 {
+	//filter := bson.M{"name": name, "namespace": namespace, "status": bson.M{"$ne": "Deleted"}}
+	filter := bson.M{"$and": []bson.M{{"name": name, "namespace": namespace}, {"status": bson.M{"$ne": Deleted_c}}}}
+	Clusters, err := FindByFilter(cluster, filter)
+	fmt.Println(ToJson(Clusters))
+	fmt.Println(err)
+	if err != nil || len(Clusters) == 0 {
 		return false
 	}
 	return true

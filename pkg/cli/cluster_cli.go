@@ -125,11 +125,11 @@ func ClusterInstallCommand() *cli.Command {
 			}
 			delete(m, "name")
 
-			namespaces, ok := m["namespaces"]
+			namespace, ok := m["namespace"]
 			if !ok {
-				return errors.New("namespaces not found, check your cluster file")
+				return errors.New("namespace not found, check your cluster file")
 			}
-			delete(m, "namespaces")
+			delete(m, "namespace")
 
 			version, ok := m["version"]
 			if !ok {
@@ -151,7 +151,7 @@ func ClusterInstallCommand() *cli.Command {
 				Version   string
 				Data      []byte
 			}{
-				Namespace: namespaces.(string),
+				Namespace: namespace.(string),
 				Name:      name.(string),
 				Version:   version.(string),
 				Data:      valBJ,
@@ -200,11 +200,11 @@ func ClusterUpdateCommand() *cli.Command {
 			}
 			delete(m, "name")
 
-			namespaces, ok := m["namespaces"]
+			namespace, ok := m["namespace"]
 			if !ok {
-				return errors.New("namespaces not found, check your cluster file")
+				return errors.New("namespace not found, check your cluster file")
 			}
-			delete(m, "namespaces")
+			delete(m, "namespace")
 
 			version, ok := m["version"]
 			if !ok {
@@ -226,7 +226,7 @@ func ClusterUpdateCommand() *cli.Command {
 				Version   string
 				Data      []byte
 			}{
-				Namespace: namespaces.(string),
+				Namespace: namespace.(string),
 				Name:      name.(string),
 				Version:   version.(string),
 				Data:      valBJ,
