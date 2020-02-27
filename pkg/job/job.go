@@ -69,6 +69,16 @@ func ClusterInstall(clusterArgs *ClusterArgs, creator string) (*db.Job, error) {
 			log.Debug().Str("ClusterId", cluster.Uuid).Msg("helm install cluster success")
 		}
 
+		//todo save cluster to db
+		if job.Status == db.Success_j {
+			cluster.Status = db.Creating_c
+			err = db.UpdateByUUID(cluster, job.ClusterId)
+			if err != nil {
+				log.Error().Err(err).Interface("cluster", cluster).Msg("update cluster error")
+			}
+			log.Debug().Str("cluster status", cluster.Status.String()).Str("cluster uuid", cluster.Uuid).Msg("update cluster success")
+		}
+
 
 
 		// todo job start status stop timeout
