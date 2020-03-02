@@ -1,0 +1,68 @@
+POST http://kubefate.net/v1/user/login
+Accept: */*
+Cache-Control: no-cache
+
+{"username": "admin","password": "admin" }
+
+###
+
+GET http://kubefate.net/
+Accept: */*
+Cache-Control: no-cache
+
+###
+
+GET http://kubefate.net/v1/job/
+Accept: */*
+Cache-Control: no-cache
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODI4Nzk5NjMsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU4Mjg3OTk2M30.XbeUjNSyFTDou4VF3ORUiJiwI4IlTTaUOJmoiYHTUpI
+
+
+
+###
+GET http://kubefate.net/v1/job/418fec2d-7a57-4d9a-b8af-813053635b7a
+Accept: */*
+Cache-Control: no-cache
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODI3OTMzMzUsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU4Mjc5MTUzNX0.3IvAwIPl8yD9C7OR9QiZY_X_2xw46Mvj7J0QGdGWSy4
+
+
+###
+DELETE http://kubefate.net/v1/job/25a68421-ed30-4eb4-bc56-0a903aed5164
+Accept: */*
+Cache-Control: no-cache
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODI1Mzg4OTEsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU4MjUzNzA5MX0.I7oDR6ZWkjuFLIuW0pm6r1kJ5NNIxm3P1cClQMlwla0
+
+###
+
+GET http://kubefate.net/v1/cluster/?all=true
+Accept: */*
+Cache-Control: no-cache
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODI3ODkwODMsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU4Mjc4NzI4M30.hmXaDZVyoVQSxxuXDU5oAYTw2WabFtgf0lBSF2lIOMA
+
+
+###
+GET http://kubefate.net/v1/cluster/b24709cf-7745-4d26-95d9-cb97a90eac66
+Accept: */*
+Cache-Control: no-cache
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODI3OTMzMzUsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU4Mjc5MTUzNX0.3IvAwIPl8yD9C7OR9QiZY_X_2xw46Mvj7J0QGdGWSy4
+
+###
+DELETE http://kubefate.net/v1/cluster/b24709cf-7745-4d26-95d9-cb97a90eac66
+Accept: */*
+Cache-Control: no-cache
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODI3OTMzMzUsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU4Mjc5MTUzNX0.3IvAwIPl8yD9C7OR9QiZY_X_2xw46Mvj7J0QGdGWSy4
+
+###
+POST http://kubefate.net/v1/cluster
+Accept: */*
+Cache-Control: no-cache
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODI3OTMxMzEsImlkIjoiYWRtaW4iLCJvcmlnX2lhdCI6MTU4Mjc5MTMzMX0.VAtPtvzZ1q5-4vXlFlFQ38ljVQpy7_ubwWGK3R6LOhs
+
+{
+  "name": "fate-10000",
+  "namespace": "fate-10000",
+  "version": "v1.2.0",
+  "data": "eyJlZ2ciOnsiY291bnQiOjN9LCJleGNoYW5nZSI6eyJpcCI6IjE5Mi4xNjguMS4xIiwicG9ydCI6OTM3MH0sIm1vZHVsZXMiOlsicHJveHkiLCJlZ2ciLCJmYXRlYm9hcmQiLCJmYXRlZmxvdyIsImZlZGVyYXRpb24iLCJtZXRhU2VydmljZSIsIm15c3FsIiwicmVkaXMiLCJyb2xsIiwicHl0aG9uIl0sInBhcnR5SWQiOjEwMDAwLCJwcm94eSI6eyJub2RlUG9ydCI6MzAwMTAsInR5cGUiOiJOb2RlUG9ydCJ9fQ=="
+}
+
+###
